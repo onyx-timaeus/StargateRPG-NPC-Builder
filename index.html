@@ -4,18 +4,68 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Stargate RPG NPC Builder</title>
+    
+    <!-- React and Babel CDN -->
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    
     <style>
-        body {
-            margin: 0;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-                'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-                sans-serif;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
+        /* Custom scrollbar styles */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1f2937;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #4b5563;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #6b7280;
+        }
+        
+        /* Range slider custom styles */
+        input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
+            background: transparent;
+            cursor: pointer;
+        }
+        
+        input[type="range"]::-webkit-slider-track {
+            background: #4b5563;
+            height: 4px;
+            border-radius: 2px;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            background: #3b82f6;
+            height: 20px;
+            width: 20px;
+            border-radius: 50%;
+            margin-top: -8px;
+        }
+        
+        input[type="range"]::-moz-range-track {
+            background: #4b5563;
+            height: 4px;
+            border-radius: 2px;
+        }
+        
+        input[type="range"]::-moz-range-thumb {
+            background: #3b82f6;
+            height: 20px;
+            width: 20px;
+            border-radius: 50%;
+            border: none;
         }
     </style>
 </head>
@@ -24,14 +74,63 @@
     
     <script type="text/babel">
         const { useState, useEffect } = React;
-
+        
+        // Icon components using inline SVGs
+        const Icons = {
+            ChevronDown: ({ className = "w-4 h-4" }) => (
+                <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+            ),
+            Shield: ({ className = "w-4 h-4" }) => (
+                <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.618 5.984A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                </svg>
+            ),
+            Heart: ({ className = "w-4 h-4" }) => (
+                <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                </svg>
+            ),
+            Zap: ({ className = "w-4 h-4" }) => (
+                <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+            ),
+            Brain: ({ className = "w-4 h-4" }) => (
+                <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                </svg>
+            ),
+            Target: ({ className = "w-4 h-4" }) => (
+                <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                </svg>
+            ),
+            Download: ({ className = "w-4 h-4" }) => (
+                <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                </svg>
+            ),
+            Plus: ({ className = "w-4 h-4" }) => (
+                <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                </svg>
+            ),
+            Minus: ({ className = "w-4 h-4" }) => (
+                <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
+                </svg>
+            )
+        };
+        
         const StargateNPCBuilder = () => {
-            // NPC state
+            // Initialize state with default values
             const [npc, setNpc] = useState({
                 name: '',
                 race: '',
                 cr: 1,
-                type: '', // For Beast types
+                type: '',
                 abilityScores: {
                     strength: 10,
                     dexterity: 10,
@@ -49,26 +148,24 @@
                     charisma: ''
                 },
                 skillProficiencies: [],
-                attackSpecialization: '', // For Attack Specialist/Veteran/Ace
+                attackSpecialization: '',
                 feats: [],
-                featSelections: {}, // For feats that need specific choices
+                featSelections: {},
                 beastAbilities: [],
-                beastAbilitySelections: {}, // For beast abilities that need choices
+                beastAbilitySelections: {},
                 hp: 0,
                 ac: 10,
                 profBonus: 2,
                 speed: 6,
                 initiative: 0
             });
-
-            const [showFeats, setShowFeats] = useState({});
+            
             const [expandedCategories, setExpandedCategories] = useState({});
             const [expandedBeastCategories, setExpandedBeastCategories] = useState({});
-
-            // Race options
+            
+            // Define all constant arrays
             const races = ['Beast', 'Human', 'Jaffa', 'NPC Race'];
-
-            // Beast types from the rules
+            
             const beastTypes = [
                 { name: 'Predator', description: 'Hunting carnivore with natural weapons' },
                 { name: 'Prey', description: 'Herbivore with speed and senses' },
@@ -79,8 +176,7 @@
                 { name: 'Insectoid', description: 'Chitinous creature with multiple limbs' },
                 { name: 'Reptilian', description: 'Scaled creature, often with natural armor' }
             ];
-
-            // Selection options for feats and abilities
+            
             const selectionOptions = {
                 attributes: ['Strength', 'Dexterity', 'Constitution', 'Intelligence', 'Wisdom', 'Charisma'],
                 environments: ['Forest', 'Plains', 'Desert', 'Arctic', 'Underwater', 'Mountains', 'Urban', 'Swamp', 'Cave'],
@@ -89,8 +185,7 @@
                 maneuvers: ['Disarm', 'Grapple', 'Trip/Shove'],
                 combatSkills: ['Acrobatics', 'Athletics', 'Intimidation', 'Perception', 'Stealth', 'Survival']
             };
-
-            // Beast abilities organized by category
+            
             const beastAbilitiesByCategory = {
                 'Movement & Mobility': [
                     { name: 'Climb', description: 'Climb speed 3m (can take twice for 6m)' },
@@ -146,8 +241,7 @@
                     { name: 'Skilled', needsSelection: 'combatSkill', description: 'Proficiency in combat/physical skill' }
                 ]
             };
-
-            // All feats organized by category - COMPLETE LIST FROM RULES
+            
             const featsByCategory = {
                 'General': [
                     { name: 'Ability Score Increase', cost: 7, needsSelection: 'attribute', description: '+1 to any ability score' },
@@ -322,27 +416,24 @@
                     { name: 'Virtuoso', cost: 3, description: 'Musical performance abilities' }
                 ]
             };
-
-            // Skills list
+            
             const skills = [
                 'Acrobatics', 'Athletics', 'Culture', 'Deception', 'Engineering',
                 'Insight', 'Intimidation', 'Investigation', 'Medicine', 'Nature',
                 'Perception', 'Performance', 'Persuasion', 'Pilot', 'Science',
                 'Sleight of Hand', 'Stealth', 'Survival'
             ];
-
-            // Weapon types
+            
             const weaponTypes = [
                 'Common Weapons', 'Sidearms', 'Longarms', 'Shotguns',
                 'Martial Arts', 'Heavy Weapons', 'Jaffa Weapons', 'Grenades'
             ];
-
-            // Tool types
+            
             const toolTypes = [
                 'Camo Kit', 'Explosives', 'Med Kit', 'Research Kit',
                 'Surgical Kit', 'Translator', 'Thieves Tools', 'Engineering Tools'
             ];
-
+            
             // Helper functions
             const getProficiencyBonus = (cr) => {
                 if (cr <= 4) return 2;
@@ -352,15 +443,15 @@
                 if (cr <= 20) return 6;
                 return 7;
             };
-
+            
             const getModifier = (score) => {
                 return Math.floor((score - 10) / 2);
             };
-
+            
             const getMissionPoints = () => {
                 return npc.cr * 2;
             };
-
+            
             const getSpentMP = () => {
                 return npc.feats.reduce((total, featName) => {
                     for (const category of Object.values(featsByCategory)) {
@@ -370,23 +461,23 @@
                     return total;
                 }, 0);
             };
-
+            
             const getRemainingMP = () => {
                 return getMissionPoints() - getSpentMP();
             };
-
+            
             const getMaxSkillProficiencies = () => {
-                let count = 2; // Base
+                let count = 2;
                 if (npc.cr >= 3) count++;
                 if (npc.cr >= 9) count++;
                 if (npc.cr >= 15) count++;
                 return count;
             };
-
+            
             const getMaxBeastAbilities = () => {
                 return Math.max(1, Math.floor(npc.cr / 2));
             };
-
+            
             const getAttackBonus = () => {
                 if (npc.race === 'Beast') return 'N/A (Beasts use natural attacks)';
                 if (npc.cr >= 17) return 'Attack Ace (4x damage dice)';
@@ -394,43 +485,31 @@
                 if (npc.cr >= 5) return 'Attack Specialist (2x damage dice)';
                 return 'None';
             };
-
-            // Check if a feat's requirements are met
+            
             const checkFeatRequirements = (feat) => {
                 if (!feat.requirements) return true;
                 
                 const reqs = feat.requirements.toLowerCase();
                 
                 // Check ability score requirements
-                if (reqs.includes('strength')) {
-                    const match = reqs.match(/strength (\d+)\+/);
-                    const finalStr = parseInt(npc.abilityScores.strength) + (parseInt(npc.bonusAttributes.strength) || 0);
-                    if (match && finalStr < parseInt(match[1])) return false;
-                }
-                if (reqs.includes('dexterity')) {
-                    const match = reqs.match(/dexterity (\d+)\+/);
-                    const finalDex = parseInt(npc.abilityScores.dexterity) + (parseInt(npc.bonusAttributes.dexterity) || 0);
-                    if (match && finalDex < parseInt(match[1])) return false;
-                }
-                if (reqs.includes('constitution')) {
-                    const match = reqs.match(/constitution (\d+)\+/);
-                    const finalCon = parseInt(npc.abilityScores.constitution) + (parseInt(npc.bonusAttributes.constitution) || 0);
-                    if (match && finalCon < parseInt(match[1])) return false;
-                }
-                if (reqs.includes('intelligence')) {
-                    const match = reqs.match(/intelligence (\d+)\+/);
-                    const finalInt = parseInt(npc.abilityScores.intelligence) + (parseInt(npc.bonusAttributes.intelligence) || 0);
-                    if (match && finalInt < parseInt(match[1])) return false;
-                }
-                if (reqs.includes('wisdom')) {
-                    const match = reqs.match(/wisdom (\d+)\+/);
-                    const finalWis = parseInt(npc.abilityScores.wisdom) + (parseInt(npc.bonusAttributes.wisdom) || 0);
-                    if (match && finalWis < parseInt(match[1])) return false;
-                }
-                if (reqs.includes('charisma')) {
-                    const match = reqs.match(/charisma (\d+)\+/);
-                    const finalCha = parseInt(npc.abilityScores.charisma) + (parseInt(npc.bonusAttributes.charisma) || 0);
-                    if (match && finalCha < parseInt(match[1])) return false;
+                const abilityChecks = [
+                    { name: 'strength', key: 'strength' },
+                    { name: 'dexterity', key: 'dexterity' },
+                    { name: 'constitution', key: 'constitution' },
+                    { name: 'intelligence', key: 'intelligence' },
+                    { name: 'wisdom', key: 'wisdom' },
+                    { name: 'charisma', key: 'charisma' }
+                ];
+                
+                for (const check of abilityChecks) {
+                    if (reqs.includes(check.name)) {
+                        const regex = new RegExp(`${check.name} (\\d+)\\+`);
+                        const match = reqs.match(regex);
+                        if (match) {
+                            const finalScore = parseInt(npc.abilityScores[check.key]) + (parseInt(npc.bonusAttributes[check.key]) || 0);
+                            if (finalScore < parseInt(match[1])) return false;
+                        }
+                    }
                 }
                 
                 // Check level requirements
@@ -445,20 +524,32 @@
                 }
                 
                 // Check for other feat requirements
-                if (reqs.includes('attack specialist') && !npc.feats.includes('Attack Specialist')) return false;
-                if (reqs.includes('attack veteran') && !npc.feats.includes('Attack Veteran')) return false;
-                if (reqs.includes('critical focus') && !npc.feats.includes('Critical Focus')) return false;
-                if (reqs.includes('hold together') && !npc.feats.includes('Hold Together')) return false;
-                if (reqs.includes('iron grip') && !npc.feats.includes('Iron Grip')) return false;
-                if (reqs.includes('sniper techniques') && !npc.feats.includes('Sniper Techniques')) return false;
+                const featChecks = [
+                    { req: 'attack specialist', feat: 'Attack Specialist' },
+                    { req: 'attack veteran', feat: 'Attack Veteran' },
+                    { req: 'critical focus', feat: 'Critical Focus' },
+                    { req: 'hold together', feat: 'Hold Together' },
+                    { req: 'iron grip', feat: 'Iron Grip' },
+                    { req: 'sniper techniques', feat: 'Sniper Techniques' }
+                ];
                 
-                // Check for ability requirements only in General feats (Advanced Training)
-                if (reqs.includes('inspire ability') && !npc.feats.includes('Advanced Training: Diplomat')) return false;
-                if (reqs.includes('jury rig ability') && !npc.feats.includes('Advanced Training: Engineer')) return false;
-                if (reqs.includes('first aid ability') && !npc.feats.includes('Advanced Training: Medic')) return false;
-                if (reqs.includes('eureka ability') && !npc.feats.includes('Advanced Training: Scientist')) return false;
-                if (reqs.includes('survivalist ability') && !npc.feats.includes('Advanced Training: Scout')) return false;
-                if (reqs.includes('tactical flexibility ability') && !npc.feats.includes('Advanced Training: Soldier')) return false;
+                for (const check of featChecks) {
+                    if (reqs.includes(check.req) && !npc.feats.includes(check.feat)) return false;
+                }
+                
+                // Check for ability requirements
+                const abilityReqChecks = [
+                    { req: 'inspire ability', feat: 'Advanced Training: Diplomat' },
+                    { req: 'jury rig ability', feat: 'Advanced Training: Engineer' },
+                    { req: 'first aid ability', feat: 'Advanced Training: Medic' },
+                    { req: 'eureka ability', feat: 'Advanced Training: Scientist' },
+                    { req: 'survivalist ability', feat: 'Advanced Training: Scout' },
+                    { req: 'tactical flexibility ability', feat: 'Advanced Training: Soldier' }
+                ];
+                
+                for (const check of abilityReqChecks) {
+                    if (reqs.includes(check.req) && !npc.feats.includes(check.feat)) return false;
+                }
                 
                 // Check for tactic feats requirement
                 if (reqs.includes('two tactic feats')) {
@@ -470,7 +561,7 @@
                 
                 return true;
             };
-
+            
             // Update derived stats
             useEffect(() => {
                 const finalStr = npc.abilityScores.strength + (parseInt(npc.bonusAttributes.strength) || 0);
@@ -478,13 +569,8 @@
                 const finalCon = npc.abilityScores.constitution + (parseInt(npc.bonusAttributes.constitution) || 0);
                 const finalWis = npc.abilityScores.wisdom + (parseInt(npc.bonusAttributes.wisdom) || 0);
                 
-                // Calculate HP based on CR
                 const baseHP = 10 + (npc.cr * 5) + (getModifier(finalCon) * npc.cr);
-                
-                // Calculate AC
                 const baseAC = 10 + getModifier(finalDex);
-                
-                // Calculate Initiative
                 const initiative = Math.max(getModifier(finalDex), getModifier(finalWis));
                 
                 setNpc(prev => ({
@@ -495,18 +581,18 @@
                     initiative: initiative
                 }));
             }, [npc.cr, npc.abilityScores, npc.bonusAttributes]);
-
+            
             // Point buy system
             const pointBuyCost = {
                 8: 0, 9: 1, 10: 2, 11: 3, 12: 4, 13: 5, 14: 7, 15: 9
             };
-
+            
             const getPointsSpent = () => {
                 return Object.values(npc.abilityScores).reduce((sum, score) => {
                     return sum + (pointBuyCost[score] || 0);
                 }, 0);
             };
-
+            
             const updateAbilityScore = (ability, value) => {
                 const newValue = Math.max(8, Math.min(15, value));
                 setNpc(prev => ({
@@ -517,8 +603,7 @@
                     }
                 }));
             };
-
-            // Export NPC
+            
             const exportNPC = () => {
                 const getFinalScore = (ability) => {
                     return npc.abilityScores[ability] + (parseInt(npc.bonusAttributes[ability]) || 0);
@@ -577,8 +662,7 @@ ${getAttackBonus()}${npc.attackSpecialization ? ` (${npc.attackSpecialization})`
                 element.click();
                 document.body.removeChild(element);
             };
-
-            // Render selection dropdown for feats/abilities
+            
             const renderSelection = (itemName, isBeast = false) => {
                 const item = isBeast
                     ? Object.values(beastAbilitiesByCategory).flat().find(a => a.name === itemName)
@@ -587,29 +671,29 @@ ${getAttackBonus()}${npc.attackSpecialization ? ` (${npc.attackSpecialization})`
                 if (!item?.needsSelection) return null;
                 
                 let options = [];
-                if (item.needsSelection === 'attribute') {
+                const selectionType = item.needsSelection;
+                
+                if (selectionType === 'attribute') {
                     options = selectionOptions.attributes;
-                } else if (item.needsSelection === 'environment') {
+                } else if (selectionType === 'environment') {
                     options = selectionOptions.environments;
-                } else if (item.needsSelection === 'sense') {
+                } else if (selectionType === 'sense') {
                     options = selectionOptions.senses;
-                } else if (item.needsSelection === 'condition') {
+                } else if (selectionType === 'condition') {
                     options = selectionOptions.conditions;
-                } else if (item.needsSelection === 'maneuver') {
+                } else if (selectionType === 'maneuver') {
                     options = selectionOptions.maneuvers;
-                } else if (item.needsSelection === 'combatSkill') {
+                } else if (selectionType === 'combatSkill') {
                     options = selectionOptions.combatSkills;
-                } else if (item.needsSelection === 'skill') {
-                    // For Exceptional Expertise, only show skills the NPC has
+                } else if (selectionType === 'skill') {
                     if (itemName === 'Exceptional Expertise') {
                         options = npc.skillProficiencies;
                     } else {
-                        // For Skill Proficiency, show all skills not already selected
                         options = skills.filter(s => !npc.skillProficiencies.includes(s));
                     }
-                } else if (item.needsSelection === 'tool') {
+                } else if (selectionType === 'tool') {
                     options = toolTypes;
-                } else if (item.needsSelection === 'weapon') {
+                } else if (selectionType === 'weapon') {
                     options = weaponTypes;
                 }
                 
@@ -640,36 +724,14 @@ ${getAttackBonus()}${npc.attackSpecialization ? ` (${npc.attackSpecialization})`
                         className="mt-2 w-full px-2 py-1 bg-gray-900 border border-gray-700 rounded text-xs text-white"
                         onClick={(e) => e.stopPropagation()}
                     >
-                        <option value="">Select {item.needsSelection}...</option>
+                        <option value="">Select {selectionType}...</option>
                         {options.map(opt => (
                             <option key={opt} value={opt}>{opt}</option>
                         ))}
                     </select>
                 );
             };
-
-            // Simple icons using emoji or text symbols
-            const Icon = ({ type }) => {
-                const icons = {
-                    target: '🎯',
-                    shield: '🛡️',
-                    heart: '❤️',
-                    zap: '⚡',
-                    brain: '🧠',
-                    download: '⬇️',
-                    sparkles: '✨',
-                    award: '🏆',
-                    bug: '🐛',
-                    users: '👥',
-                    swords: '⚔️',
-                    settings: '⚙️',
-                    plus: '+',
-                    minus: '-',
-                    chevronDown: '▼'
-                };
-                return <span>{icons[type] || '•'}</span>;
-            };
-
+            
             return (
                 <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900 p-4">
                     <div className="max-w-7xl mx-auto">
@@ -678,11 +740,11 @@ ${getAttackBonus()}${npc.attackSpecialization ? ` (${npc.attackSpecialization})`
                             <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-6 rounded-t-lg">
                                 <h1 className="text-3xl font-bold text-white flex items-center gap-3">
                                     <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
-                                        <Icon type="target" />
+                                        ⭐
                                     </div>
                                     Stargate RPG NPC Builder
                                 </h1>
-                                <p className="text-blue-100 mt-2">Create NPCs and Beasts for your campaigns - Complete Edition</p>
+                                <p className="text-blue-100 mt-2">Create NPCs and Beasts for your campaigns</p>
                             </div>
                             
                             <div className="p-6 space-y-6">
@@ -725,10 +787,10 @@ ${getAttackBonus()}${npc.attackSpecialization ? ` (${npc.attackSpecialization})`
                                                 }`}
                                             >
                                                 <div className="font-semibold flex items-center gap-2 justify-center">
-                                                    {race === 'Beast' && <Icon type="bug" />}
-                                                    {race === 'Human' && <Icon type="users" />}
-                                                    {race === 'Jaffa' && <Icon type="swords" />}
-                                                    {race === 'NPC Race' && <Icon type="settings" />}
+                                                    {race === 'Beast' && '🐾'}
+                                                    {race === 'Human' && '👤'}
+                                                    {race === 'Jaffa' && '⚔️'}
+                                                    {race === 'NPC Race' && '⚙️'}
                                                     {race}
                                                 </div>
                                             </button>
@@ -736,7 +798,7 @@ ${getAttackBonus()}${npc.attackSpecialization ? ` (${npc.attackSpecialization})`
                                     </div>
                                 </div>
                                 
-                                {/* Beast Type Selection (if Beast is selected) */}
+                                {/* Beast Type Selection */}
                                 {npc.race === 'Beast' && (
                                     <div className="bg-yellow-500/10 border-2 border-yellow-500/50 rounded-lg p-4">
                                         <label className="block text-sm font-medium text-yellow-300 mb-2">
@@ -771,7 +833,7 @@ ${getAttackBonus()}${npc.attackSpecialization ? ` (${npc.attackSpecialization})`
                                             onClick={() => setNpc(prev => ({ ...prev, cr: Math.max(1, prev.cr - 1) }))}
                                             className="w-8 h-8 bg-gray-700 hover:bg-gray-600 rounded flex items-center justify-center text-white"
                                         >
-                                            <Icon type="minus" />
+                                            <Icons.Minus />
                                         </button>
                                         <input
                                             type="range"
@@ -785,7 +847,7 @@ ${getAttackBonus()}${npc.attackSpecialization ? ` (${npc.attackSpecialization})`
                                             onClick={() => setNpc(prev => ({ ...prev, cr: Math.min(20, prev.cr + 1) }))}
                                             className="w-8 h-8 bg-gray-700 hover:bg-gray-600 rounded flex items-center justify-center text-white"
                                         >
-                                            <Icon type="plus" />
+                                            <Icons.Plus />
                                         </button>
                                         <div className="bg-gray-800 px-4 py-2 rounded-lg border border-gray-600 min-w-[60px] text-center">
                                             <span className="text-xl font-bold text-white">{npc.cr}</span>
@@ -796,7 +858,7 @@ ${getAttackBonus()}${npc.attackSpecialization ? ` (${npc.attackSpecialization})`
                                     </div>
                                 </div>
                                 
-                                {/* Ability Scores (Point Buy) */}
+                                {/* Ability Scores */}
                                 <div className="bg-gray-700/50 rounded-lg p-4">
                                     <div className="flex justify-between items-center mb-4">
                                         <label className="text-sm font-medium text-gray-300">
@@ -849,7 +911,7 @@ ${getAttackBonus()}${npc.attackSpecialization ? ` (${npc.attackSpecialization})`
                                         })}
                                     </div>
                                 </div>
-
+                                
                                 {/* Bonus Attributes */}
                                 <div className="bg-gray-700/50 rounded-lg p-4">
                                     <label className="text-sm font-medium text-gray-300 mb-2">
@@ -878,7 +940,7 @@ ${getAttackBonus()}${npc.attackSpecialization ? ` (${npc.attackSpecialization})`
                                         ))}
                                     </div>
                                 </div>
-
+                                
                                 {/* Skill Proficiencies */}
                                 <div className="bg-gray-700/50 rounded-lg p-4">
                                     <label className="text-sm font-medium text-gray-300 mb-2">
@@ -924,12 +986,12 @@ ${getAttackBonus()}${npc.attackSpecialization ? ` (${npc.attackSpecialization})`
                                         })}
                                     </div>
                                 </div>
-
-                                {/* Attack Specialization (not for Beasts) */}
+                                
+                                {/* Attack Specialization */}
                                 {npc.cr >= 5 && npc.race !== 'Beast' && (
                                     <div className="bg-gray-700/50 rounded-lg p-4">
                                         <div className="flex items-center gap-2 mb-3">
-                                            <Icon type="award" />
+                                            <span className="text-yellow-400">🏆</span>
                                             <label className="text-sm font-medium text-gray-300">
                                                 Attack Specialization - {getAttackBonus()}
                                             </label>
@@ -946,13 +1008,12 @@ ${getAttackBonus()}${npc.attackSpecialization ? ` (${npc.attackSpecialization})`
                                         </select>
                                     </div>
                                 )}
-
-                                {/* Beast Abilities (if Beast) */}
+                                
+                                {/* Beast Abilities */}
                                 {npc.race === 'Beast' && (
                                     <div className="bg-yellow-500/10 border-2 border-yellow-500/50 rounded-lg p-4">
                                         <h3 className="text-lg font-semibold text-yellow-300 mb-3 flex items-center gap-2">
-                                            <Icon type="bug" />
-                                            Beast Abilities ({npc.beastAbilities.length}/{getMaxBeastAbilities()})
+                                            🐾 Beast Abilities ({npc.beastAbilities.length}/{getMaxBeastAbilities()})
                                         </h3>
                                         <p className="text-sm text-gray-400 mb-4">
                                             Select up to {getMaxBeastAbilities()} abilities (half CR, minimum 1)
@@ -984,11 +1045,9 @@ ${getAttackBonus()}${npc.attackSpecialization ? ` (${npc.attackSpecialization})`
                                                                 {category}
                                                                 <span className="text-xs text-gray-400">({abilities.length})</span>
                                                             </span>
-                                                            <span className={`transition-transform ${
+                                                            <Icons.ChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${
                                                                 expandedBeastCategories[category] ? 'rotate-180' : ''
-                                                            }`}>
-                                                                <Icon type="chevronDown" />
-                                                            </span>
+                                                            }`} />
                                                         </button>
                                                         
                                                         {expandedBeastCategories[category] && (
@@ -1047,13 +1106,12 @@ ${getAttackBonus()}${npc.attackSpecialization ? ` (${npc.attackSpecialization})`
                                         </div>
                                     </div>
                                 )}
-
-                                {/* Feats (if not Beast) */}
+                                
+                                {/* Feats */}
                                 {npc.race !== 'Beast' && (
                                     <div className="bg-gray-700/50 rounded-lg p-4">
                                         <h3 className="text-lg font-semibold text-gray-300 mb-3 flex items-center gap-2">
-                                            <Icon type="sparkles" />
-                                            Feats Selection
+                                            ✨ Feats Selection
                                         </h3>
                                         <div className="mb-4 flex justify-between items-center">
                                             <span className="text-sm text-gray-400">
@@ -1072,11 +1130,9 @@ ${getAttackBonus()}${npc.attackSpecialization ? ` (${npc.attackSpecialization})`
                                                         className="w-full px-4 py-2 bg-gray-700 hover:bg-gray-600 transition-colors flex items-center justify-between"
                                                     >
                                                         <span className="font-semibold text-sm text-white">{category}</span>
-                                                        <span className={`transition-transform ${
+                                                        <Icons.ChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${
                                                             expandedCategories[category] ? 'rotate-180' : ''
-                                                        }`}>
-                                                            <Icon type="chevronDown" />
-                                                        </span>
+                                                        }`} />
                                                     </button>
                                                     
                                                     {expandedCategories[category] && (
@@ -1150,7 +1206,7 @@ ${getAttackBonus()}${npc.attackSpecialization ? ` (${npc.attackSpecialization})`
                                         </div>
                                     </div>
                                 )}
-
+                                
                                 {/* Combat Statistics */}
                                 <div className="bg-gray-700/50 rounded-lg p-4">
                                     <h3 className="text-lg font-semibold text-gray-300 mb-4">Combat Statistics</h3>
@@ -1158,7 +1214,7 @@ ${getAttackBonus()}${npc.attackSpecialization ? ` (${npc.attackSpecialization})`
                                     <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                                         <div className="bg-gray-800 rounded-lg p-3">
                                             <div className="flex items-center gap-2 text-red-400 mb-1">
-                                                <Icon type="heart" />
+                                                <Icons.Heart className="w-4 h-4" />
                                                 <span className="text-xs">Hit Points</span>
                                             </div>
                                             <div className="text-2xl font-bold text-white">{npc.hp}</div>
@@ -1166,7 +1222,7 @@ ${getAttackBonus()}${npc.attackSpecialization ? ` (${npc.attackSpecialization})`
                                         
                                         <div className="bg-gray-800 rounded-lg p-3">
                                             <div className="flex items-center gap-2 text-blue-400 mb-1">
-                                                <Icon type="shield" />
+                                                <Icons.Shield className="w-4 h-4" />
                                                 <span className="text-xs">Armor Class</span>
                                             </div>
                                             <div className="text-2xl font-bold text-white">{npc.ac}</div>
@@ -1174,7 +1230,7 @@ ${getAttackBonus()}${npc.attackSpecialization ? ` (${npc.attackSpecialization})`
                                         
                                         <div className="bg-gray-800 rounded-lg p-3">
                                             <div className="flex items-center gap-2 text-yellow-400 mb-1">
-                                                <Icon type="zap" />
+                                                <Icons.Zap className="w-4 h-4" />
                                                 <span className="text-xs">Initiative</span>
                                             </div>
                                             <div className="text-2xl font-bold text-white">
@@ -1184,7 +1240,7 @@ ${getAttackBonus()}${npc.attackSpecialization ? ` (${npc.attackSpecialization})`
                                         
                                         <div className="bg-gray-800 rounded-lg p-3">
                                             <div className="flex items-center gap-2 text-purple-400 mb-1">
-                                                <Icon type="brain" />
+                                                <Icons.Brain className="w-4 h-4" />
                                                 <span className="text-xs">Prof. Bonus</span>
                                             </div>
                                             <div className="text-2xl font-bold text-white">+{npc.profBonus}</div>
@@ -1192,7 +1248,7 @@ ${getAttackBonus()}${npc.attackSpecialization ? ` (${npc.attackSpecialization})`
                                         
                                         <div className="bg-gray-800 rounded-lg p-3">
                                             <div className="flex items-center gap-2 text-green-400 mb-1">
-                                                <Icon type="target" />
+                                                <Icons.Target className="w-4 h-4" />
                                                 <span className="text-xs">Speed</span>
                                             </div>
                                             <div className="text-2xl font-bold text-white">{npc.speed}m</div>
@@ -1207,7 +1263,7 @@ ${getAttackBonus()}${npc.attackSpecialization ? ` (${npc.attackSpecialization})`
                                         disabled={!npc.race || (npc.race === 'Beast' && !npc.type)}
                                         className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-lg hover:from-blue-700 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center gap-2"
                                     >
-                                        <Icon type="download" />
+                                        <Icons.Download className="w-5 h-5" />
                                         Export NPC
                                     </button>
                                 </div>
@@ -1217,7 +1273,7 @@ ${getAttackBonus()}${npc.attackSpecialization ? ` (${npc.attackSpecialization})`
                 </div>
             );
         };
-
+        
         // Render the app
         ReactDOM.render(<StargateNPCBuilder />, document.getElementById('root'));
     </script>
