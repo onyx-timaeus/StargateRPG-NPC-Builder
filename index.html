@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stargate RPG NPC Builder</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <style>
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+                'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+                sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+    
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+        const { ChevronDown, Shield, Heart, Zap, Brain, Target, Download, AlertCircle, Sparkles, Award, BookOpen, Swords, Bug, Users, Settings, Plus, Minus } = lucide;
+
+        const StargateNPCBuilder = () => {
+            // NPC state
+            const [npc, setNpc] = useState({
+                name: '',
+                race: '',
+                cr: 1,
+                type: '', // For Beast types
+                abilityScores: {
+                    strength: 10,
+                    dexterity: 10,
+                    constitution: 10,
+                    intelligence: 10,
+                    wisdom: 10,
+                    charisma: 10
+                },
+                bonusAttributes: {
+                    strength: '',
+                    dexterity: '',
+                    constitution: '',
+                    intelligence: '',
+                    wisdom: '',
+                    charisma: ''
+                },
+                skillProficiencies: [],
+                attackSpecialization: '', // For Attack Specialist/Veteran/Ace
+                feats: [],
+                featSelections: {}, // For feats that need specific choices
+                beastAbilities: [],
+                beastAbilitySelections: {}, // For beast abilities that need choices
+                hp: 0,
+                ac: 10,
+                profBonus: 2,
+                speed: 6,
+                initiative: 0
+            });
+
+            const [showFeats, setShowFeats] = useState({});
+            const [expandedCategories, setExpandedCategories] = useState({});
+            const [expandedBeastCategories, setExpandedBeastCategories] = useState({});
+
+            // Race options
+            const races = ['Beast', 'Human', 'Jaffa', 'NPC Race'];
+
+            // Beast types from the rules
+            const beastTypes = [
+                { name: 'Predator', description: 'Hunting carnivore with natural weapons' },
+                { name: 'Prey', description: 'Herbivore with speed and senses' },
+                { name: 'Pack Hunter', description: 'Cooperative predator with tactics' },
+                { name: 'Ambush Predator', description: 'Stealth hunter with powerful first strike' },
+                { name: 'Flying', description: 'Aerial creature with flight capability' },
+                { name: 'Aquatic', description: 'Water-dwelling creature with swimming' },
+                { name: 'Insectoid', description: 'Chitinous creature with multiple limbs' },
+                { name: 'Reptilian', description: 'Scaled creature, often with natural armor' }
+            ];
+
+            // Selection options for feats and abilities
+            const selectionOptions = {
+                attributes: ['Strength', 'Dexterity', 'Constitution', 'Intelligence', 'Wisdom', 'Charisma'],
+                environments: ['Forest', 'Plains', 'Desert', 'Arctic', 'Underwater', 'Mountains', 'Urban', 'Swamp', 'Cave'],
+                senses: ['Sight', 'Hearing', 'Smell', 'Touch'],
+                conditions: ['Blinded', 'Deafened', 'Stunned'],
+                maneuvers: ['Disarm', 'Grapple', 'Trip/Shove'],
+                combatSkills: ['Acrobatics', 'Athletics', 'Intimidation', 'Perception', 'Stealth', 'Survival']
+            };
+
+            // Beast abilities organized by category
+            const beastAbilitiesByCategory = {
+                'Movement & Mobility': [
+                    { name: 'Climb', description: 'Climb speed 3m (can take twice for 6m)' },
+                    { name: 'Extra Legs', description: '+1m speed, advantage vs prone' },
+                    { name: 'Fast', description: '+3m to one movement speed' },
+                    { name: 'Flight', description: 'Fly speed 6m' },
+                    { name: 'Lumbering', description: '-3m speed, bonus HP = 2x CR' },
+                    { name: 'Move By', description: 'No opportunity attacks when leaving reach' },
+                    { name: 'Spider Climb', description: 'Climb on walls and ceilings' },
+                    { name: 'Standing Leap', description: 'Always count as 2m running start' },
+                    { name: 'Swimmer', description: 'Swim speed 3m (can take twice for 6m)' }
+                ],
+                'Senses & Perception': [
+                    { name: 'Bioluminescent', description: 'Sheds bright light in 2m radius' },
+                    { name: 'Blindsight', description: 'Gains blindsight 3m (can take twice for 6m)' },
+                    { name: 'Darkvision', description: 'Darkvision 6m (can take twice for 12m)' },
+                    { name: 'Echolocation', description: 'Blindsight 6m or double existing, disabled when deafened' },
+                    { name: 'Keen Sense', needsSelection: 'sense', description: 'Advantage on Perception with chosen sense' }
+                ],
+                'Defense & Resilience': [
+                    { name: 'Armored', description: 'AC increased by +2' },
+                    { name: 'Relentless', description: 'Drop to 1 HP instead of 0 (once per rest)' },
+                    { name: 'Sure-Footed', description: 'Advantage vs prone effects' },
+                    { name: 'Tough', description: 'Gain HP equal to CR' }
+                ],
+                'Offense & Combat': [
+                    { name: 'Blood Frenzy', description: 'Advantage on melee vs injured targets' },
+                    { name: 'Charge', description: 'Extra damage and knockdown after 4m movement' },
+                    { name: 'Constrict', description: 'Deals damage when grappling' },
+                    { name: 'Multiattack', description: 'Attack with each natural weapon' },
+                    { name: 'Natural Weapon', description: 'Gain additional natural attack' },
+                    { name: 'Pack Tactics', description: 'Advantage when ally within 5ft of target' },
+                    { name: 'Pounce', description: 'Knock prone after 20ft charge' },
+                    { name: 'Powerful Attack', description: 'Increase one attack damage die' },
+                    { name: 'Superior Natural Attacks', description: 'Natural attacks have tech level' }
+                ],
+                'Environmental Adaptation': [
+                    { name: 'Amphibious Breath', description: 'Can breathe both air and water' },
+                    { name: 'Camouflage', needsSelection: 'environment', description: 'Advantage on Stealth in chosen environment' },
+                    { name: 'Hold Breath', description: 'Hold breath for 30 minutes' }
+                ],
+                'Physical Form': [
+                    { name: 'Apex Predator', description: 'Double HP, intended as solo threat (increases CR by 1)' },
+                    { name: 'Beast of Burden', description: 'Double strength for carrying capacity' },
+                    { name: 'Larger', description: 'One size larger, +2 Str, -2 Dex, -1 AC' },
+                    { name: 'Swarm', description: 'Represents group, can occupy same space' }
+                ],
+                'Enhancements': [
+                    { name: 'Improved Ability', description: '+2 DC to one ability\'s save' },
+                    { name: 'Improved Attribute', needsSelection: 'attribute', description: '+2 to one attribute' },
+                    { name: 'Mimicry', description: 'Can mimic simple sounds' },
+                    { name: 'Proficient', description: '+1 proficiency bonus' },
+                    { name: 'Skilled', needsSelection: 'combatSkill', description: 'Proficiency in combat/physical skill' }
+                ]
+            };
+
+            // All feats organized by category - COMPLETE LIST FROM RULES
+            const featsByCategory = {
+                'General': [
+                    { name: 'Ability Score Increase', cost: 7, needsSelection: 'attribute', description: '+1 to any ability score' },
+                    { name: 'Advanced Training: Diplomat', cost: 9, requirements: 'Charisma 13+, Persuasion', description: 'Gain Inspire ability' },
+                    { name: 'Advanced Training: Engineer', cost: 9, requirements: 'Intelligence 13+, Engineering', description: 'Gain Jury Rig ability' },
+                    { name: 'Advanced Training: Medic', cost: 9, requirements: 'Wisdom 13+, Medicine', description: 'Gain First Aid ability' },
+                    { name: 'Advanced Training: Scientist', cost: 9, requirements: 'Intelligence 13+, Science', description: 'Gain Eureka ability' },
+                    { name: 'Advanced Training: Scout', cost: 9, requirements: 'Constitution 13+, Survival', description: 'Gain Survivalist ability' },
+                    { name: 'Advanced Training: Soldier', cost: 9, requirements: 'Constitution 13+, Intimidation', description: 'Gain Tactical Flexibility' },
+                    { name: 'Airborne School', cost: 3, requirements: 'Athletics', description: 'Resistance to falling damage' },
+                    { name: 'Apt Analogy', cost: 5, requirements: 'Science', description: 'Grant +TD to ally Int/Wis checks' },
+                    { name: 'Battlefield Medicine', cost: 6, requirements: 'Med Kit proficiency', description: 'Heal ability damage with Med Kit' },
+                    { name: 'Casual Genius', cost: 6, requirements: 'Eureka ability', description: 'Start with Eureka points' },
+                    { name: 'Chaplain School', cost: 3, requirements: 'Insight', description: 'No auto-fail on 1 in Convince' },
+                    { name: 'Convincing', cost: 9, requirements: 'Inspire ability', description: 'Add Cha to Inspire temp HP' },
+                    { name: 'Cross-Discipline Study', cost: 9, requirements: 'Intelligence 13+', description: 'Half prof to non-proficient mental skills' },
+                    { name: 'De-escalate', cost: 5, requirements: 'Persuasion', description: 'Reduce tension die once per rest' },
+                    { name: 'Determined', cost: 9, requirements: 'Wisdom 13+', description: 'Reroll low d20 rolls with DP' },
+                    { name: 'Dive School', cost: 3, requirements: 'Athletics', description: 'Hold breath longer, swim speed' },
+                    { name: 'Escalate', cost: 5, requirements: 'Intimidation', description: 'Increase tension die once per rest' },
+                    { name: 'Exceptional Expertise', cost: 9, needsSelection: 'skill', requirements: 'Proficiency with chosen skill', description: 'Double proficiency for skill' },
+                    { name: 'Fighter Ace', cost: 5, requirements: 'Pilot', description: '+d6 to aerial position pool' },
+                    { name: 'First Response', cost: 9, requirements: 'First Aid ability', description: 'Add Wis to healing, heal as action' },
+                    { name: 'Force of Will', cost: 5, requirements: 'Inspire ability', description: 'Use Inspire on rest, already inspired immune' },
+                    { name: 'For Science!', cost: 5, requirements: 'Eureka ability, Science', description: 'Eureka for Charisma checks' },
+                    { name: 'Good Cop / Bad Cop', cost: 5, requirements: 'Investigation', description: 'Adjust interrogation threshold by TD' },
+                    { name: 'Great Mind', cost: 9, requirements: 'Intelligence 13+, Wisdom 13+', description: 'Immune to Charmed, advantage on Insight' },
+                    { name: 'Hardy', cost: 5, description: 'Improve HD by one step (d8->d10, d10->d12)' },
+                    { name: 'Heavy Armor Proficiency', cost: 3, requirements: 'Light Armor Proficiency', description: 'Gain heavy armor proficiency' },
+                    { name: 'Improved Initiative', cost: 6, description: 'Add proficiency bonus to Initiative' },
+                    { name: 'Skill Proficiency', cost: 3, needsSelection: 'skill', description: 'Gain skill proficiency' },
+                    { name: 'Tool Proficiency', cost: 3, needsSelection: 'tool', description: 'Gain tool proficiency' },
+                    { name: 'Weapon Proficiency', cost: 3, needsSelection: 'weapon', description: 'Gain weapon proficiency' }
+                ],
+                'Combat - General': [
+                    { name: 'Attack Specialist', cost: 4, requirements: 'Level 5', description: 'Double damage dice with weapon' },
+                    { name: 'Attack Veteran', cost: 4, requirements: 'Level 11, Attack Specialist', description: 'Triple damage dice with weapon' },
+                    { name: 'Attack Ace', cost: 4, requirements: 'Level 17, Attack Veteran', description: 'Quadruple damage dice with weapon' },
+                    { name: 'Co-ordinated Attack', cost: 7, description: '+TD damage when ally adjacent' },
+                    { name: 'Critical Focus', cost: 5, requirements: 'Proficient with weapon', description: 'Add prof bonus to crit damage' },
+                    { name: 'Critical Effect', cost: 9, needsSelection: 'condition', requirements: 'Critical Focus', description: 'Apply condition on critical' },
+                    { name: 'Die Hard', cost: 3, requirements: 'Constitution 13+', description: 'Fewer death saves needed' },
+                    { name: 'Dodge', cost: 5, requirements: 'Dexterity 13', description: '+1 AC in light/no armor' },
+                    { name: 'Evasion', cost: 9, requirements: 'Dexterity 13+', description: 'No damage on successful Dex save, half on fail' },
+                    { name: 'Hold Together', cost: 9, requirements: 'Engineering', description: 'Resistance to damage from attacks hindered by cover' },
+                    { name: 'Horse Lord', cost: 3, requirements: 'Animal Handling', description: 'Mount for 1m movement, train untrained mounts' },
+                    { name: 'Improved Critical', cost: 9, requirements: 'Proficiency with three weapon types', description: 'Crit on 19-20 with chosen weapon' },
+                    { name: 'Kip Up', cost: 3, requirements: 'Acrobatics or Athletics', description: 'Stand from prone for 1m movement' },
+                    { name: 'Look Alive', cost: 9, requirements: 'Wisdom 13+', description: 'Not surprised, choose one ally also not surprised' },
+                    { name: 'Organ Targeting', cost: 9, requirements: 'Medicine', description: '+1d6 damage on advantage or vs wounded' },
+                    { name: 'Quick Draw', cost: 3, requirements: 'Dexterity or Wisdom 13+', description: 'Draw/holster as bonus/reaction' },
+                    { name: 'Rally', cost: 5, requirements: 'Athletics', description: 'Heal TD HP when wounded at combat start' },
+                    { name: 'Reactive', cost: 9, requirements: 'Dexterity or Wisdom 13+', description: 'Take second reaction each turn' },
+                    { name: 'Reinforce Cover', cost: 5, requirements: 'Hold Together', description: 'Extend Hold Together to allies within 1m' },
+                    { name: 'Saddle Warrior', cost: 3, description: 'Advantage on mounted melee after 3m movement' },
+                    { name: 'Scout\'s Cunning', cost: 9, requirements: 'Dexterity 13+, Athletics', description: 'Bonus action for Dash/Disengage/Hide' },
+                    { name: 'Spook', cost: 5, requirements: 'Intimidation', description: 'Spend DP to taunt resistant target' },
+                    { name: 'Surge', cost: 9, requirements: 'Constitution 13+', description: 'Extra action as bonus action (once per rest)' },
+                    { name: 'Swift', cost: 3, requirements: 'Athletics or Acrobatics', description: '+1m movement speed (can take 3x)' },
+                    { name: 'Tactical Superiority', cost: 5, requirements: 'Two tactic feats', description: 'Two tactics active simultaneously' },
+                    { name: 'Takedown', cost: 7, requirements: 'Dexterity 13+', description: 'Roll 2 TD vs extras, take better' },
+                    { name: 'Uncanny Dodge', cost: 5, requirements: 'Dexterity 13+', description: 'Reaction for resistance to damage' },
+                    { name: 'Unyielding', cost: 3, requirements: 'Constitution 11+', description: 'Treat exhaustion as 1 level lower' },
+                    { name: 'Vanguard', cost: 5, requirements: 'Stealth and Survival', description: '+1d6 ranged damage within 5m (stackable)' },
+                    { name: 'Weapon Specialization', cost: 4, description: '+1 hit/damage with weapon type (level-gated)' }
+                ],
+                'Combat - Melee': [
+                    { name: 'Blind-Fighter', cost: 3, requirements: 'Perception', description: 'No disadvantage on blind melee' },
+                    { name: 'Brawler', cost: 7, requirements: 'Attack Specialist', description: 'Chain melee attacks' },
+                    { name: 'Defensive Art Master', cost: 5, requirements: 'Dodge, Martial Arts', description: 'Resistance vs unarmed' },
+                    { name: 'Lok\'nel Master', cost: 5, requirements: 'Ma\'tok proficiency', description: '1d12 damage with Ma\'tok' },
+                    { name: 'Lunge', cost: 5, description: '+1m melee reach' },
+                    { name: 'Maneuvering Arts Master', cost: 5, needsSelection: 'maneuver', requirements: 'Martial Arts', description: '+2 to combat maneuvers' },
+                    { name: 'Martial Mastery', cost: 7, requirements: '3 weapon proficiencies', description: 'Increase melee damage die' },
+                    { name: 'Martial Training', cost: 5, requirements: '3 weapon proficiencies', description: 'Minimum d8 melee damage' },
+                    { name: 'Mastaba Master', cost: 5, requirements: 'Martial Arts', description: '+2 AC vs melee' },
+                    { name: 'Power Attack', cost: 5, requirements: 'Athletics', description: 'Disadvantage for +TD damage' },
+                    { name: 'Precision Maneuvers', cost: 5, requirements: 'Martial Arts', description: 'Use Dex for maneuvers' },
+                    { name: 'Precision Strikes', cost: 3, requirements: 'Martial Arts', description: 'Martial Arts gain finesse' },
+                    { name: 'Weapons Akimbo', cost: 9, requirements: 'Proficient with chosen weapon', description: 'Dual wield, reroll 1s (reduced cost after first)' }
+                ],
+                'Combat - Ranged': [
+                    { name: 'Ballistics Expert', cost: 7, requirements: 'Science', description: 'Use Int for ranged attacks' },
+                    { name: 'Deadly Shot', cost: 7, requirements: 'Perception', description: 'Disadvantage for +TD damage' },
+                    { name: 'Hip Fire', cost: 5, description: 'No disadvantage in melee' },
+                    { name: 'Iron Grip', cost: 9, requirements: 'Strength 13+', description: '+2 effective Str for automatic' },
+                    { name: 'Precise Shot', cost: 5, description: 'Ignore creature cover' },
+                    { name: 'Rapid Reload', cost: 4, description: 'Reload in half actions' },
+                    { name: 'Rapid Shot', cost: 3, description: 'Treat weapons as burst/automatic' },
+                    { name: 'Sniper Techniques', cost: 5, requirements: 'Attack Veteran with Longarms', description: '+TD if no movement' },
+                    { name: 'Sniper Trickshots', cost: 5, requirements: 'Sniper Techniques', description: 'Trip/disarm with longarm' },
+                    { name: 'Spraying Fire', cost: 9, requirements: 'Longarms Proficiency', description: 'Automatic gains scatter with 10+ bullets' },
+                    { name: 'Steady Arm', cost: 5, requirements: 'Strength 13+, Iron Grip', description: 'No disadvantage with automatic up to prof bonus TD' },
+                    { name: 'Uncanny Shot', cost: 5, requirements: 'Sniper Techniques', description: 'Double long range with Sniper Techniques' }
+                ],
+                'Inspiration': [
+                    { name: 'Calm and Collected', cost: 5, description: 'Inspired gain save advantage' },
+                    { name: 'Clear Focus', cost: 5, description: 'Inspired gain skill advantage' },
+                    { name: 'Coordinated Fire', cost: 5, description: 'Grant attack advantage' },
+                    { name: 'Defensive Motivation', cost: 5, description: 'Inspired gain +1 AC' },
+                    { name: 'Enduring Inspirations', cost: 5, description: 'Combat start Inspire HP' },
+                    { name: 'Grim Resolve', cost: 5, description: 'Resistance when losing last Inspire' },
+                    { name: 'Hard Days Night', cost: 5, description: 'Reduce exhaustion damage' },
+                    { name: 'Quippy Comebacks', cost: 5, description: 'Halve DP loss in diplomacy' },
+                    { name: 'Skillful Explanations', cost: 5, description: 'Allow skill reroll' }
+                ],
+                'Modification': [
+                    { name: 'Armorer', cost: 5, description: 'Grant armor +1 AC' },
+                    { name: 'Chem Thrower', cost: 5, description: '+5m to line/cone weapons' },
+                    { name: 'Comms Tech', cost: 5, description: 'Radio range 20km' },
+                    { name: 'Grenadier', cost: 5, description: 'Grenades +1d6 damage' },
+                    { name: 'Longarm Calibrations', cost: 5, description: '+1d4 attack at long range' },
+                    { name: 'Minefield Expert', cost: 5, requirements: 'Explosives', description: 'Bury explosives as mines' },
+                    { name: 'Montage', cost: 5, description: 'Reduce R&D successes needed' }
+                ],
+                'Procedure': [
+                    { name: 'Biohazard Disposal', cost: 5, description: 'Team proficient vs disease' },
+                    { name: 'Controlled Stimulants', cost: 5, description: 'Heal exhaustion with Med Kit' },
+                    { name: 'Crash Training', cost: 5, description: 'Revive dead with DC 25' },
+                    { name: 'Embolism', cost: 5, description: 'Melee deals Con damage' },
+                    { name: 'Improvised Medicine', cost: 5, description: 'Heal without Med Kit' },
+                    { name: 'Pharmaceuticals', cost: 5, description: 'Heal mental damage' },
+                    { name: 'Sedatives', cost: 5, description: 'Melee causes fatigue' },
+                    { name: 'Urgent Care', cost: 5, description: 'Replace healing with TD' },
+                    { name: 'Vital Organ Trauma', cost: 5, description: 'Add Wis to crit damage' }
+                ],
+                'Discovery': [
+                    { name: 'A Moments Thought', cost: 5, description: 'Reroll failed Int/Wis check' },
+                    { name: 'Archaeologist', cost: 5, requirements: 'Culture', description: 'Find secret rooms' },
+                    { name: 'Astronomer', cost: 5, requirements: 'Science', description: 'Reduce Stargate activation' },
+                    { name: 'Biologist', cost: 5, requirements: 'Medicine', description: 'Heal 1d6 per Eureka' },
+                    { name: 'Chemist', cost: 5, requirements: 'Science', description: 'Acid attack with Research Kit' },
+                    { name: 'Geologist', cost: 5, requirements: 'Science', description: 'Negate natural cover' },
+                    { name: 'Hyper-Focus', cost: 5, description: 'Add TD to Int/Wis check' },
+                    { name: 'Physicist', cost: 5, requirements: 'Science', description: 'Increase weapon range 50%' },
+                    { name: 'Social Sciences', cost: 5, requirements: 'Culture', description: 'Gain Eureka when losing DP' }
+                ],
+                'Field Hack': [
+                    { name: 'Camouflage', cost: 5, requirements: 'Stealth', description: 'Team Stealth advantage' },
+                    { name: 'Camp Security', cost: 5, requirements: 'Perception', description: 'Perception advantage at rest' },
+                    { name: 'Foraging', cost: 5, requirements: 'Survival', description: 'Feed team with Survival' },
+                    { name: 'Hide Tracks', cost: 5, requirements: 'Stealth', description: 'Raise tracking DC' },
+                    { name: 'Ranger Tricks', cost: 5, description: 'Extra traversal cards' },
+                    { name: 'Ration Optimization', cost: 5, description: 'Team heals DP on rest' },
+                    { name: 'Rope Tricks', cost: 5, requirements: 'Stealth', description: 'Team benefits from climbing' },
+                    { name: 'Tracking', cost: 5, requirements: 'Perception', description: 'Advantage on tracking' },
+                    { name: 'Xenosurvival', cost: 5, requirements: 'Constitution 13+', description: 'Share Survivalist benefits' }
+                ],
+                'Tactic': [
+                    { name: 'Ambush', cost: 5, description: 'Team advantage on first melee' },
+                    { name: 'Assault Coordination', cost: 5, description: 'Next ranged +1d6' },
+                    { name: 'Coordinated Response', cost: 5, description: 'Team uses your initiative' },
+                    { name: 'Defensive Posture', cost: 5, description: 'Allies within 2m +2 AC' },
+                    { name: 'Distracting Attacks', cost: 5, description: 'Target disadvantage vs ally' },
+                    { name: 'Hit and Run', cost: 5, description: 'Ally can Disengage' },
+                    { name: 'Overwatchers', cost: 5, description: '90° overwatch, 2 attacks' },
+                    { name: 'Response Shot', cost: 5, description: 'Reaction attack when ally hit' },
+                    { name: 'Rush', cost: 5, description: 'Ally can Dash' }
+                ],
+                'Downtime': [
+                    { name: 'Armory Hound', cost: 3, description: 'Weapons start at higher Tech Level' },
+                    { name: 'Artist', cost: 3, description: 'Create art during downtime' },
+                    { name: 'Athlete', cost: 3, description: 'Physical training benefits' },
+                    { name: 'Bookworm', cost: 3, description: 'Gain knowledge through reading' },
+                    { name: 'Cinefile', cost: 3, description: 'Movie knowledge and references' },
+                    { name: 'Cookie', cost: 3, description: 'Cook for team morale' },
+                    { name: 'Gamer', cost: 3, description: 'Gaming skills and tactics' },
+                    { name: 'Party Animal', cost: 3, description: 'Social connections through parties' },
+                    { name: 'Sawbones', cost: 3, description: 'Medical practice during downtime' },
+                    { name: 'Sport Shooter', cost: 3, description: 'Improve shooting during downtime' },
+                    { name: 'Tread Head', cost: 3, description: 'Vehicle maintenance and knowledge' },
+                    { name: 'Virtuoso', cost: 3, description: 'Musical performance abilities' }
+                ]
+            };
+
+            // Skills list
+            const skills = [
+                'Acrobatics', 'Athletics', 'Culture', 'Deception', 'Engineering',
+                'Insight', 'Intimidation', 'Investigation', 'Medicine', 'Nature',
+                'Perception', 'Performance', 'Persuasion', 'Pilot', 'Science',
+                'Sleight of Hand', 'Stealth', 'Survival'
+            ];
+
+            // Weapon types
+            const weaponTypes = [
+                'Common Weapons', 'Sidearms', 'Longarms', 'Shotguns',
+                'Martial Arts', 'Heavy Weapons', 'Jaffa Weapons', 'Grenades'
+            ];
+
+            // Tool types
+            const toolTypes = [
+                'Camo Kit', 'Explosives', 'Med Kit', 'Research Kit',
+                'Surgical Kit', 'Translator', 'Thieves Tools', 'Engineering Tools'
+            ];
+
+            // Helper functions
+            const getProficiencyBonus = (cr) => {
+                if (cr <= 4) return 2;
+                if (cr <= 8) return 3;
+                if (cr <= 12) return 4;
+                if (cr <= 16) return 5;
+                if (cr <= 20) return 6;
+                return 7;
+            };
+
+            const getModifier = (score) => {
+                return Math.floor((score - 10) / 2);
+            };
+
+            const getMissionPoints = () => {
+                return npc.cr * 2;
+            };
+
+            const getSpentMP = () => {
+                return npc.feats.reduce((total, featName) => {
+                    for (const category of Object.values(featsByCategory)) {
+                        const feat = category.find(f => f.name === featName);
+                        if (feat) return total + feat.cost;
+                    }
+                    return total;
+                }, 0);
+            };
+
+            const getRemainingMP = () => {
+                return getMissionPoints() - getSpentMP();
+            };
+
+            const getMaxSkillProficiencies = () => {
+                let count = 2; // Base
+                if (npc.cr >= 3) count++;
+                if (npc.cr >= 9) count++;
+                if (npc.cr >= 15) count++;
+                return count;
+            };
+
+            const getMaxBeastAbilities = () => {
+                return Math.max(1, Math.floor(npc.cr / 2));
+            };
+
+            const getAttackBonus = () => {
+                if (npc.race === 'Beast') return 'N/A (Beasts use natural attacks)';
+                if (npc.cr >= 17) return 'Attack Ace (4x damage dice)';
+                if (npc.cr >= 11) return 'Attack Veteran (3x damage dice)';
+                if (npc.cr >= 5) return 'Attack Specialist (2x damage dice)';
+                return 'None';
+            };
+
+            // Check if a feat's requirements are met
+            const checkFeatRequirements = (feat) => {
+                if (!feat.requirements) return true;
+                
+                const reqs = feat.requirements.toLowerCase();
+                
+                // Check ability score requirements
+                if (reqs.includes('strength')) {
+                    const match = reqs.match(/strength (\d+)\+/);
+                    const finalStr = parseInt(npc.abilityScores.strength) + (parseInt(npc.bonusAttributes.strength) || 0);
+                    if (match && finalStr < parseInt(match[1])) return false;
+                }
+                if (reqs.includes('dexterity')) {
+                    const match = reqs.match(/dexterity (\d+)\+/);
+                    const finalDex = parseInt(npc.abilityScores.dexterity) + (parseInt(npc.bonusAttributes.dexterity) || 0);
+                    if (match && finalDex < parseInt(match[1])) return false;
+                }
+                if (reqs.includes('constitution')) {
+                    const match = reqs.match(/constitution (\d+)\+/);
+                    const finalCon = parseInt(npc.abilityScores.constitution) + (parseInt(npc.bonusAttributes.constitution) || 0);
+                    if (match && finalCon < parseInt(match[1])) return false;
+                }
+                if (reqs.includes('intelligence')) {
+                    const match = reqs.match(/intelligence (\d+)\+/);
+                    const finalInt = parseInt(npc.abilityScores.intelligence) + (parseInt(npc.bonusAttributes.intelligence) || 0);
+                    if (match && finalInt < parseInt(match[1])) return false;
+                }
+                if (reqs.includes('wisdom')) {
+                    const match = reqs.match(/wisdom (\d+)\+/);
+                    const finalWis = parseInt(npc.abilityScores.wisdom) + (parseInt(npc.bonusAttributes.wisdom) || 0);
+                    if (match && finalWis < parseInt(match[1])) return false;
+                }
+                if (reqs.includes('charisma')) {
+                    const match = reqs.match(/charisma (\d+)\+/);
+                    const finalCha = parseInt(npc.abilityScores.charisma) + (parseInt(npc.bonusAttributes.charisma) || 0);
+                    if (match && finalCha < parseInt(match[1])) return false;
+                }
+                
+                // Check level requirements
+                if (reqs.includes('level 17') && npc.cr < 17) return false;
+                if (reqs.includes('level 11') && npc.cr < 11) return false;
+                if (reqs.includes('level 5') && npc.cr < 5) return false;
+                
+                // Check skill requirements
+                const skillReqs = skills.filter(skill => reqs.includes(skill.toLowerCase()));
+                for (const skill of skillReqs) {
+                    if (!npc.skillProficiencies.includes(skill)) return false;
+                }
+                
+                // Check for other feat requirements
+                if (reqs.includes('attack specialist') && !npc.feats.includes('Attack Specialist')) return false;
+                if (reqs.includes('attack veteran') && !npc.feats.includes('Attack Veteran')) return false;
+                if (reqs.includes('critical focus') && !npc.feats.includes('Critical Focus')) return false;
+                if (reqs.includes('hold together') && !npc.feats.includes('Hold Together')) return false;
+                if (reqs.includes('iron grip') && !npc.feats.includes('Iron Grip')) return false;
+                if (reqs.includes('sniper techniques') && !npc.feats.includes('Sniper Techniques')) return false;
+                
+                // Check for ability requirements only in General feats (Advanced Training)
+                if (reqs.includes('inspire ability') && !npc.feats.includes('Advanced Training: Diplomat')) return false;
+                if (reqs.includes('jury rig ability') && !npc.feats.includes('Advanced Training: Engineer')) return false;
+                if (reqs.includes('first aid ability') && !npc.feats.includes('Advanced Training: Medic')) return false;
+                if (reqs.includes('eureka ability') && !npc.feats.includes('Advanced Training: Scientist')) return false;
+                if (reqs.includes('survivalist ability') && !npc.feats.includes('Advanced Training: Scout')) return false;
+                if (reqs.includes('tactical flexibility ability') && !npc.feats.includes('Advanced Training: Soldier')) return false;
+                
+                // Check for tactic feats requirement
+                if (reqs.includes('two tactic feats')) {
+                    const tacticCount = npc.feats.filter(f => 
+                        featsByCategory['Tactic'].some(tactic => tactic.name === f)
+                    ).length;
+                    if (tacticCount < 2) return false;
+                }
+                
+                return true;
+            };
+
+            // Update derived stats
+            useEffect(() => {
+                const finalStr = npc.abilityScores.strength + (parseInt(npc.bonusAttributes.strength) || 0);
+                const finalDex = npc.abilityScores.dexterity + (parseInt(npc.bonusAttributes.dexterity) || 0);
+                const finalCon = npc.abilityScores.constitution + (parseInt(npc.bonusAttributes.constitution) || 0);
+                const finalWis = npc.abilityScores.wisdom + (parseInt(npc.bonusAttributes.wisdom) || 0);
+                
+                // Calculate HP based on CR
+                const baseHP = 10 + (npc.cr * 5) + (getModifier(finalCon) * npc.cr);
+                
+                // Calculate AC
+                const baseAC = 10 + getModifier(finalDex);
+                
+                // Calculate Initiative
+                const initiative = Math.max(getModifier(finalDex), getModifier(finalWis));
+                
+                setNpc(prev => ({
+                    ...prev,
+                    hp: baseHP,
+                    ac: baseAC,
+                    profBonus: getProficiencyBonus(npc.cr),
+                    initiative: initiative
+                }));
+            }, [npc.cr, npc.abilityScores, npc.bonusAttributes]);
+
+            // Point buy system
+            const pointBuyCost = {
+                8: 0, 9: 1, 10: 2, 11: 3, 12: 4, 13: 5, 14: 7, 15: 9
+            };
+
+            const getPointsSpent = () => {
+                return Object.values(npc.abilityScores).reduce((sum, score) => {
+                    return sum + (pointBuyCost[score] || 0);
+                }, 0);
+            };
+
+            const updateAbilityScore = (ability, value) => {
+                const newValue = Math.max(8, Math.min(15, value));
+                setNpc(prev => ({
+                    ...prev,
+                    abilityScores: {
+                        ...prev.abilityScores,
+                        [ability]: newValue
+                    }
+                }));
+            };
+
+            // Export NPC
+            const exportNPC = () => {
+                const getFinalScore = (ability) => {
+                    return npc.abilityScores[ability] + (parseInt(npc.bonusAttributes[ability]) || 0);
+                };
+                
+                let sheet = `STARGATE RPG NPC STAT BLOCK
+=============================
+Name: ${npc.name || 'Unnamed NPC'}
+Race: ${npc.race}${npc.race === 'Beast' ? ` (${npc.type || 'Untyped'})` : ''}
+Challenge Rating: ${npc.cr}
+
+ATTRIBUTES
+STR: ${getFinalScore('strength')} (${getModifier(getFinalScore('strength')) >= 0 ? '+' : ''}${getModifier(getFinalScore('strength'))})
+DEX: ${getFinalScore('dexterity')} (${getModifier(getFinalScore('dexterity')) >= 0 ? '+' : ''}${getModifier(getFinalScore('dexterity'))})
+CON: ${getFinalScore('constitution')} (${getModifier(getFinalScore('constitution')) >= 0 ? '+' : ''}${getModifier(getFinalScore('constitution'))})
+INT: ${getFinalScore('intelligence')} (${getModifier(getFinalScore('intelligence')) >= 0 ? '+' : ''}${getModifier(getFinalScore('intelligence'))})
+WIS: ${getFinalScore('wisdom')} (${getModifier(getFinalScore('wisdom')) >= 0 ? '+' : ''}${getModifier(getFinalScore('wisdom'))})
+CHA: ${getFinalScore('charisma')} (${getModifier(getFinalScore('charisma')) >= 0 ? '+' : ''}${getModifier(getFinalScore('charisma'))})
+
+COMBAT STATS
+Armor Class: ${npc.ac}
+Hit Points: ${npc.hp}
+Speed: ${npc.speed}m
+Proficiency Bonus: +${npc.profBonus}
+Initiative: ${npc.initiative >= 0 ? '+' : ''}${npc.initiative}
+
+SKILLS
+${npc.skillProficiencies.join(', ') || 'None'}
+
+ATTACK BONUS
+${getAttackBonus()}${npc.attackSpecialization ? ` (${npc.attackSpecialization})` : ''}
+
+`;
+                
+                if (npc.race === 'Beast') {
+                    sheet += `\nBEAST ABILITIES\n`;
+                    npc.beastAbilities.forEach(ability => {
+                        const selection = npc.beastAbilitySelections[ability];
+                        sheet += `• ${ability}${selection ? ` (${selection})` : ''}\n`;
+                    });
+                } else {
+                    sheet += `\nFEATS (${getSpentMP()}/${getMissionPoints()} MP Spent)\n`;
+                    npc.feats.forEach(feat => {
+                        const selection = npc.featSelections[feat];
+                        sheet += `• ${feat}${selection ? ` (${selection})` : ''}\n`;
+                    });
+                }
+                
+                sheet += `\n=============================`;
+                
+                const element = document.createElement('a');
+                const file = new Blob([sheet], { type: 'text/plain' });
+                element.href = URL.createObjectURL(file);
+                element.download = `${npc.name || 'npc'}_cr${npc.cr}.txt`;
+                document.body.appendChild(element);
+                element.click();
+                document.body.removeChild(element);
+            };
+
+            // Render selection dropdown for feats/abilities
+            const renderSelection = (itemName, isBeast = false) => {
+                const item = isBeast
+                    ? Object.values(beastAbilitiesByCategory).flat().find(a => a.name === itemName)
+                    : Object.values(featsByCategory).flat().find(f => f.name === itemName);
+                
+                if (!item?.needsSelection) return null;
+                
+                let options = [];
+                if (item.needsSelection === 'attribute') {
+                    options = selectionOptions.attributes;
+                } else if (item.needsSelection === 'environment') {
+                    options = selectionOptions.environments;
+                } else if (item.needsSelection === 'sense') {
+                    options = selectionOptions.senses;
+                } else if (item.needsSelection === 'condition') {
+                    options = selectionOptions.conditions;
+                } else if (item.needsSelection === 'maneuver') {
+                    options = selectionOptions.maneuvers;
+                } else if (item.needsSelection === 'combatSkill') {
+                    options = selectionOptions.combatSkills;
+                } else if (item.needsSelection === 'skill') {
+                    // For Exceptional Expertise, only show skills the NPC has
+                    if (itemName === 'Exceptional Expertise') {
+                        options = npc.skillProficiencies;
+                    } else {
+                        // For Skill Proficiency, show all skills not already selected
+                        options = skills.filter(s => !npc.skillProficiencies.includes(s));
+                    }
+                } else if (item.needsSelection === 'tool') {
+                    options = toolTypes;
+                } else if (item.needsSelection === 'weapon') {
+                    options = weaponTypes;
+                }
+                
+                const value = isBeast ? npc.beastAbilitySelections[itemName] : npc.featSelections[itemName];
+                
+                return React.createElement('select', {
+                    value: value || '',
+                    onChange: (e) => {
+                        if (isBeast) {
+                            setNpc(prev => ({
+                                ...prev,
+                                beastAbilitySelections: {
+                                    ...prev.beastAbilitySelections,
+                                    [itemName]: e.target.value
+                                }
+                            }));
+                        } else {
+                            setNpc(prev => ({
+                                ...prev,
+                                featSelections: {
+                                    ...prev.featSelections,
+                                    [itemName]: e.target.value
+                                }
+                            }));
+                        }
+                    },
+                    className: "mt-2 w-full px-2 py-1 bg-gray-900 border border-gray-700 rounded text-xs text-white",
+                    onClick: (e) => e.stopPropagation()
+                },
+                    React.createElement('option', { value: "" }, `Select ${item.needsSelection}...`),
+                    options.map(opt => 
+                        React.createElement('option', { key: opt, value: opt }, opt)
+                    )
+                );
+            };
+
+            // Create icon elements
+            const createIcon = (IconComponent) => {
+                return React.createElement(IconComponent, {
+                    size: 20,
+                    strokeWidth: 1.5
+                });
+            };
+
+            return React.createElement('div', { className: "min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900 p-4" },
+                React.createElement('div', { className: "max-w-7xl mx-auto" },
+                    React.createElement('div', { className: "bg-gray-800/90 backdrop-blur-sm rounded-lg shadow-2xl border border-blue-500/30" },
+                        // Header
+                        React.createElement('div', { className: "bg-gradient-to-r from-blue-600 to-purple-600 p-6 rounded-t-lg" },
+                            React.createElement('h1', { className: "text-3xl font-bold text-white flex items-center gap-3" },
+                                React.createElement('div', { className: "w-10 h-10 bg-white/20 rounded-full flex items-center justify-center" },
+                                    createIcon(Target)
+                                ),
+                                "Stargate RPG NPC Builder"
+                            ),
+                            React.createElement('p', { className: "text-blue-100 mt-2" }, "Create NPCs and Beasts for your campaigns - Complete Edition")
+                        ),
+                        
+                        React.createElement('div', { className: "p-6 space-y-6" },
+                            // NPC Name
+                            React.createElement('div', { className: "bg-gray-700/50 rounded-lg p-4" },
+                                React.createElement('label', { className: "block text-sm font-medium text-gray-300 mb-2" }, "NPC Name"),
+                                React.createElement('input', {
+                                    type: "text",
+                                    value: npc.name,
+                                    onChange: (e) => setNpc(prev => ({ ...prev, name: e.target.value })),
+                                    className: "w-full px-4 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white focus:border-blue-500 focus:outline-none",
+                                    placeholder: "Enter NPC name..."
+                                })
+                            ),
+                            
+                            // Race Selection
+                            React.createElement('div', { className: "bg-gray-700/50 rounded-lg p-4" },
+                                React.createElement('label', { className: "block text-sm font-medium text-gray-300 mb-2" }, "Select Race"),
+                                React.createElement('div', { className: "grid grid-cols-2 md:grid-cols-4 gap-3" },
+                                    races.map(race => 
+                                        React.createElement('button', {
+                                            key: race,
+                                            onClick: () => setNpc(prev => ({ 
+                                                ...prev, 
+                                                race, 
+                                                type: '',
+                                                feats: [],
+                                                featSelections: {},
+                                                beastAbilities: [],
+                                                beastAbilitySelections: {}
+                                            })),
+                                            className: `p-3 rounded-lg border-2 transition-all ${
+                                                npc.race === race
+                                                    ? 'border-blue-500 bg-blue-500/20 text-white'
+                                                    : 'border-gray-600 bg-gray-800 text-gray-300 hover:border-gray-500'
+                                            }`
+                                        },
+                                            React.createElement('div', { className: "font-semibold flex items-center gap-2 justify-center" },
+                                                race === 'Beast' && createIcon(Bug),
+                                                race === 'Human' && createIcon(Users),
+                                                race === 'Jaffa' && createIcon(Swords),
+                                                race === 'NPC Race' && createIcon(Settings),
+                                                race
+                                            )
+                                        )
+                                    )
+                                )
+                            ),
+                            
+                            // Beast Type Selection (if Beast is selected)
+                            npc.race === 'Beast' && React.createElement('div', { className: "bg-yellow-500/10 border-2 border-yellow-500/50 rounded-lg p-4" },
+                                React.createElement('label', { className: "block text-sm font-medium text-yellow-300 mb-2" }, "Select Beast Type"),
+                                React.createElement('div', { className: "grid grid-cols-1 md:grid-cols-2 gap-2" },
+                                    beastTypes.map(type => 
+                                        React.createElement('button', {
+                                            key: type.name,
+                                            onClick: () => setNpc(prev => ({ ...prev, type: type.name })),
+                                            className: `p-3 text-left rounded border transition-all ${
+                                                npc.type === type.name
+                                                    ? 'border-yellow-500 bg-yellow-500/20'
+                                                    : 'border-gray-600 bg-gray-800 hover:border-gray-500'
+                                            }`
+                                        },
+                                            React.createElement('div', { className: "font-semibold text-sm text-white" }, type.name),
+                                            React.createElement('div', { className: "text-xs text-gray-400" }, type.description)
+                                        )
+                                    )
+                                )
+                            ),
+                            
+                            // Challenge Rating Selection
+                            React.createElement('div', { className: "bg-gray-700/50 rounded-lg p-4" },
+                                React.createElement('label', { className: "block text-sm font-medium text-gray-300 mb-2" }, "Challenge Rating (CR)"),
+                                React.createElement('div', { className: "flex items-center gap-4" },
+                                    React.createElement('button', {
+                                        onClick: () => setNpc(prev => ({ ...prev, cr: Math.max(1, prev.cr - 1) })),
+                                        className: "w-8 h-8 bg-gray-700 hover:bg-gray-600 rounded flex items-center justify-center text-white"
+                                    }, createIcon(Minus)),
+                                    React.createElement('input', {
+                                        type: "range",
+                                        min: "1",
+                                        max: "20",
+                                        value: npc.cr,
+                                        onChange: (e) => setNpc(prev => ({ ...prev, cr: parseInt(e.target.value) })),
+                                        className: "flex-1"
+                                    }),
+                                    React.createElement('button', {
+                                        onClick: () => setNpc(prev => ({ ...prev, cr: Math.min(20, prev.cr + 1) })),
+                                        className: "w-8 h-8 bg-gray-700 hover:bg-gray-600 rounded flex items-center justify-center text-white"
+                                    }, createIcon(Plus)),
+                                    React.createElement('div', { className: "bg-gray-800 px-4 py-2 rounded-lg border border-gray-600 min-w-[60px] text-center" },
+                                        React.createElement('span', { className: "text-xl font-bold text-white" }, npc.cr)
+                                    )
+                                ),
+                                React.createElement('div', { className: "mt-2 text-xs text-gray-400" }, 
+                                    `Mission Points Available: ${getMissionPoints()} MP`
+                                )
+                            ),
+                            
+                            // Ability Scores (Point Buy)
+                            React.createElement('div', { className: "bg-gray-700/50 rounded-lg p-4" },
+                                React.createElement('div', { className: "flex justify-between items-center mb-4" },
+                                    React.createElement('label', { className: "text-sm font-medium text-gray-300" }, 
+                                        "Ability Scores (Point Buy) - Base Values"
+                                    ),
+                                    React.createElement('span', { 
+                                        className: `text-sm px-3 py-1 rounded-full ${
+                                            getPointsSpent() > 27 ? 'bg-red-500/20 text-red-300' : 'bg-green-500/20 text-green-300'
+                                        }`
+                                    }, `Points: ${getPointsSpent()}/27`)
+                                ),
+                                
+                                React.createElement('div', { className: "grid grid-cols-2 md:grid-cols-3 gap-4" },
+                                    Object.entries(npc.abilityScores).map(([ability, score]) => {
+                                        const bonus = parseInt(npc.bonusAttributes[ability]) || 0;
+                                        const finalScore = score + bonus;
+                                        
+                                        return React.createElement('div', { key: ability, className: "bg-gray-800 rounded-lg p-3" },
+                                            React.createElement('div', { className: "flex justify-between items-center mb-2" },
+                                                React.createElement('span', { className: "text-xs text-gray-400 capitalize" }, ability),
+                                                React.createElement('span', { className: "text-xs text-blue-300" },
+                                                    `Final: ${finalScore} (${getModifier(finalScore) >= 0 ? '+' : ''}${getModifier(finalScore)})`
+                                                )
+                                            ),
+                                            React.createElement('div', { className: "flex items-center gap-2" },
+                                                React.createElement('button', {
+                                                    onClick: () => updateAbilityScore(ability, score - 1),
+                                                    className: "w-8 h-8 bg-gray-700 hover:bg-gray-600 rounded text-white",
+                                                    disabled: score <= 8
+                                                }, "-"),
+                                                React.createElement('div', { className: "flex-1 text-center" },
+                                                    React.createElement('div', { className: "text-lg font-bold text-white" }, score),
+                                                    bonus !== 0 && React.createElement('div', { className: "text-xs text-green-400" }, `+${bonus}`)
+                                                ),
+                                                React.createElement('button', {
+                                                    onClick: () => updateAbilityScore(ability, score + 1),
+                                                    className: "w-8 h-8 bg-gray-700 hover:bg-gray-600 rounded text-white",
+                                                    disabled: score >= 15 || getPointsSpent() >= 27
+                                                }, "+")
+                                            )
+                                        );
+                                    })
+                                )
+                            ),
+                            
+                            // Skills Section
+                            React.createElement('div', { className: "bg-gray-700/50 rounded-lg p-4" },
+                                React.createElement('label', { className: "text-sm font-medium text-gray-300 mb-2" },
+                                    `Skill Proficiencies (${npc.skillProficiencies.length}/${getMaxSkillProficiencies()})`
+                                ),
+                                React.createElement('div', { className: "text-xs text-gray-400 mb-3" },
+                                    `Base: 2 skills${npc.cr >= 3 ? ', +1 at CR 3' : ''}${npc.cr >= 9 ? ', +1 at CR 9' : ''}${npc.cr >= 15 ? ', +1 at CR 15' : ''}`
+                                ),
+                                React.createElement('div', { className: "grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2" },
+                                    skills.map(skill => {
+                                        const isSelected = npc.skillProficiencies.includes(skill);
+                                        const maxReached = npc.skillProficiencies.length >= getMaxSkillProficiencies();
+                                        
+                                        return React.createElement('button', {
+                                            key: skill,
+                                            onClick: () => {
+                                                setNpc(prev => {
+                                                    if (isSelected) {
+                                                        return {
+                                                            ...prev,
+                                                            skillProficiencies: prev.skillProficiencies.filter(s => s !== skill)
+                                                        };
+                                                    } else if (!maxReached) {
+                                                        return {
+                                                            ...prev,
+                                                            skillProficiencies: [...prev.skillProficiencies, skill]
+                                                        };
+                                                    }
+                                                    return prev;
+                                                });
+                                            },
+                                            disabled: !isSelected && maxReached,
+                                            className: `p-2 rounded text-xs transition-all ${
+                                                isSelected
+                                                    ? 'bg-green-500/20 border border-green-500 text-white'
+                                                    : 'bg-gray-800 border border-gray-600 text-gray-300 hover:border-gray-500 disabled:opacity-50'
+                                            }`
+                                        }, skill);
+                                    })
+                                )
+                            ),
+                            
+                            // Combat Statistics
+                            React.createElement('div', { className: "bg-gray-700/50 rounded-lg p-4" },
+                                React.createElement('h3', { className: "text-lg font-semibold text-gray-300 mb-4" }, "Combat Statistics"),
+                                
+                                React.createElement('div', { className: "grid grid-cols-2 md:grid-cols-3 gap-4" },
+                                    React.createElement('div', { className: "bg-gray-800 rounded-lg p-3" },
+                                        React.createElement('div', { className: "flex items-center gap-2 text-red-400 mb-1" },
+                                            createIcon(Heart),
+                                            React.createElement('span', { className: "text-xs" }, "Hit Points")
+                                        ),
+                                        React.createElement('div', { className: "text-2xl font-bold text-white" }, npc.hp)
+                                    ),
+                                    
+                                    React.createElement('div', { className: "bg-gray-800 rounded-lg p-3" },
+                                        React.createElement('div', { className: "flex items-center gap-2 text-blue-400 mb-1" },
+                                            createIcon(Shield),
+                                            React.createElement('span', { className: "text-xs" }, "Armor Class")
+                                        ),
+                                        React.createElement('div', { className: "text-2xl font-bold text-white" }, npc.ac)
+                                    ),
+                                    
+                                    React.createElement('div', { className: "bg-gray-800 rounded-lg p-3" },
+                                        React.createElement('div', { className: "flex items-center gap-2 text-yellow-400 mb-1" },
+                                            createIcon(Zap),
+                                            React.createElement('span', { className: "text-xs" }, "Initiative")
+                                        ),
+                                        React.createElement('div', { className: "text-2xl font-bold text-white" },
+                                            `${npc.initiative >= 0 ? '+' : ''}${npc.initiative}`
+                                        )
+                                    ),
+                                    
+                                    React.createElement('div', { className: "bg-gray-800 rounded-lg p-3" },
+                                        React.createElement('div', { className: "flex items-center gap-2 text-purple-400 mb-1" },
+                                            createIcon(Brain),
+                                            React.createElement('span', { className: "text-xs" }, "Prof. Bonus")
+                                        ),
+                                        React.createElement('div', { className: "text-2xl font-bold text-white" }, `+${npc.profBonus}`)
+                                    ),
+                                    
+                                    React.createElement('div', { className: "bg-gray-800 rounded-lg p-3" },
+                                        React.createElement('div', { className: "flex items-center gap-2 text-green-400 mb-1" },
+                                            createIcon(Target),
+                                            React.createElement('span', { className: "text-xs" }, "Speed")
+                                        ),
+                                        React.createElement('div', { className: "text-2xl font-bold text-white" }, `${npc.speed}m`)
+                                    )
+                                )
+                            ),
+                            
+                            // Export Button
+                            React.createElement('div', { className: "flex justify-end" },
+                                React.createElement('button', {
+                                    onClick: exportNPC,
+                                    disabled: !npc.race || (npc.race === 'Beast' && !npc.type),
+                                    className: "px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-lg hover:from-blue-700 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center gap-2"
+                                },
+                                    createIcon(Download),
+                                    "Export NPC"
+                                )
+                            )
+                        )
+                    )
+                )
+            );
+        };
+
+        // Render the app
+        ReactDOM.render(React.createElement(StargateNPCBuilder), document.getElementById('root'));
+    </script>
+</body>
+</html>
