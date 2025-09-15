@@ -185,97 +185,131 @@
                 maneuvers: ['Disarm', 'Grapple', 'Trip/Shove'],
                 combatSkills: ['Acrobatics', 'Athletics', 'Intimidation', 'Perception', 'Stealth', 'Survival']
             };
-            
+
             const beastAbilitiesByCategory = {
-                'Movement & Mobility': [
-                    { name: 'Climb', description: 'Climb speed 3m (can take twice for 6m)' },
-                    { name: 'Extra Legs', description: '+1m speed, advantage vs prone' },
-                    { name: 'Fast', description: '+3m to one movement speed' },
-                    { name: 'Flight', description: 'Fly speed 6m' },
-                    { name: 'Lumbering', description: '-3m speed, bonus HP = 2x CR' },
-                    { name: 'Move By', description: 'No opportunity attacks when leaving reach' },
-                    { name: 'Spider Climb', description: 'Climb on walls and ceilings' },
-                    { name: 'Standing Leap', description: 'Always count as 2m running start' },
-                    { name: 'Swimmer', description: 'Swim speed 3m (can take twice for 6m)' }
-                ],
-                'Senses & Perception': [
-                    { name: 'Bioluminescent', description: 'Sheds bright light in 2m radius' },
-                    { name: 'Blindsight', description: 'Gains blindsight 3m (can take twice for 6m)' },
-                    { name: 'Darkvision', description: 'Darkvision 6m (can take twice for 12m)' },
-                    { name: 'Echolocation', description: 'Blindsight 6m or double existing, disabled when deafened' },
-                    { name: 'Keen Sense', needsSelection: 'sense', description: 'Advantage on Perception with chosen sense' }
-                ],
-                'Defense & Resilience': [
-                    { name: 'Armored', description: 'AC increased by +2' },
-                    { name: 'Relentless', description: 'Drop to 1 HP instead of 0 (once per rest)' },
-                    { name: 'Sure-Footed', description: 'Advantage vs prone effects' },
-                    { name: 'Tough', description: 'Gain HP equal to CR' }
-                ],
-                'Offense & Combat': [
-                    { name: 'Blood Frenzy', description: 'Advantage on melee vs injured targets' },
-                    { name: 'Charge', description: 'Extra damage and knockdown after 4m movement' },
-                    { name: 'Constrict', description: 'Deals damage when grappling' },
-                    { name: 'Multiattack', description: 'Attack with each natural weapon' },
-                    { name: 'Natural Weapon', description: 'Gain additional natural attack' },
-                    { name: 'Pack Tactics', description: 'Advantage when ally within 5ft of target' },
-                    { name: 'Pounce', description: 'Knock prone after 20ft charge' },
-                    { name: 'Powerful Attack', description: 'Increase one attack damage die' },
-                    { name: 'Superior Natural Attacks', description: 'Natural attacks have tech level' }
-                ],
-                'Environmental Adaptation': [
-                    { name: 'Amphibious Breath', description: 'Can breathe both air and water' },
-                    { name: 'Camouflage', needsSelection: 'environment', description: 'Advantage on Stealth in chosen environment' },
-                    { name: 'Hold Breath', description: 'Hold breath for 30 minutes' }
-                ],
-                'Physical Form': [
-                    { name: 'Apex Predator', description: 'Double HP, intended as solo threat (increases CR by 1)' },
-                    { name: 'Beast of Burden', description: 'Double strength for carrying capacity' },
-                    { name: 'Larger', description: 'One size larger, +2 Str, -2 Dex, -1 AC' },
-                    { name: 'Swarm', description: 'Represents group, can occupy same space' }
-                ],
-                'Enhancements': [
-                    { name: 'Improved Ability', description: '+2 DC to one ability\'s save' },
-                    { name: 'Improved Attribute', needsSelection: 'attribute', description: '+2 to one attribute' },
-                    { name: 'Mimicry', description: 'Can mimic simple sounds' },
-                    { name: 'Proficient', description: '+1 proficiency bonus' },
-                    { name: 'Skilled', needsSelection: 'combatSkill', description: 'Proficiency in combat/physical skill' }
-                ]
-            };
+  "Movement & Mobility": [
+    { name: "Climb", description: "The beast gains a climb speed of 3m. This ability may be taken a second time, increasing the climb speed to 6m." },
+    { name: "Extra Legs", description: "The beast’s land speed increases by +1m and it has advantage on checks and saves to resist being knocked prone." },
+    { name: "Fast", description: "Increase one of the beast’s movement speeds by +3m." },
+    { name: "Flight", description: "The beast gains a fly speed of 6m." },
+    { name: "Flightless", description: "The beast loses its fly speed (if it had one) but takes only half damage from falling." },
+    { name: "Lumbering", description: "All the beast’s movement speeds are reduced by 3m, but it gains bonus hit points equal to twice its CR." },
+    { name: "Move By", description: "The beast does not provoke opportunity attacks when moving out of an enemy’s reach." },
+    { name: "Spider Climb", description: "The beast can climb difficult surfaces, including upside down on ceilings, without needing to make checks." },
+    { name: "Standing Leap", description: "The beast is always treated as having moved at least 2m when making a running jump." },
+    { name: "Swimmer", description: "The beast gains a swim speed of 3m. This ability may be taken a second time, increasing the swim speed to 6m." }
+  ],
+  "Senses & Perception": [
+    { name: "Bioluminescent", description: "The beast emits bright light in a 2m radius and dim light for an additional 2m." },
+    { name: "Blindsight", description: "The beast gains blindsight out to 3m. This ability may be taken a second time to increase blindsight to 6m." },
+    { name: "Darkvision", description: "The beast gains darkvision out to 6m. This ability may be taken a second time to increase darkvision to 12m." },
+    { name: "Echolocation", description: "The beast gains blindsight out to 6m or doubles any existing blindsight. It cannot use this sense while deafened." },
+    { name: "Keen Sense", needsSelection: "sense", description: "Choose one sense (such as sight, hearing, or smell). The beast has advantage on Perception checks using that sense." }
+  ],
+  "Defense & Resilience": [
+    { name: "Armored", description: "The beast’s AC increases by +2. This ability may be taken multiple times, and the bonuses stack." },
+    { name: "Crystalline", description: "The beast’s body is composed of crystal or stone. It has resistance to slashing and piercing damage but vulnerability to bludgeoning damage." },
+    { name: "Relentless", description: "Once per short or long rest, when the beast would be reduced to 0 HP, it instead drops to 1 HP." },
+    { name: "Sure-Footed", description: "The beast has advantage on Strength and Dexterity saves against effects that would knock it prone." },
+    { name: "Tough", description: "The beast gains bonus hit points equal to its CR. This ability may be taken multiple times, and the bonuses stack." }
+  ],
+  "Offense & Combat": [
+    { name: "Blood Frenzy", description: "The beast has advantage on melee attack rolls against targets that are injured (at or below half HP)." },
+    { name: "Charge", description: "If the beast moves at least 4m straight toward a target and then hits it, it deals extra damage equal to one of its natural attack dice and forces a Strength save (DC 10) or the target is knocked prone." },
+    { name: "Constrict", description: "When the beast successfully grapples a target, it automatically deals damage equal to one of its natural attacks at the end of each of the target’s turns until it escapes." },
+    { name: "Multiattack", description: "The beast can attack once with each of its natural weapons when it takes the Attack action (requires multiple natural weapons)." },
+    { name: "Natural Weapon", description: "The beast gains an additional natural attack (such as a bite, claw, or gore). This ability may be taken multiple times." },
+    { name: "Pack Tactics", description: "The beast has advantage on attack rolls against a target if an ally is within 1.5m of the target and not incapacitated." },
+    { name: "Pounce", description: "If the beast moves at least 6m (20ft) straight toward a creature and hits it with a melee attack, the target must succeed on a Strength save (DC 5 + CR) or be knocked prone." },
+    { name: "Powerful Attack", description: "Choose one of the beast’s natural attacks. Its damage die increases to the next size (e.g., 1d8 → 1d10). This ability may be taken multiple times." },
+    { name: "Superior Natural Attacks", description: "The beast’s natural weapons count as having a Tech Level equal to one-fourth its CR (minimum TL 1)." },
+    { name: "Venomous", description: "Choose one of the beast’s natural attacks. On a hit, the target must succeed on a Constitution save (DC 10 + CR) or be poisoned. At the start of each of its turns, the poisoned target takes poison damage that scales with CR (1–4 TD). The save can be repeated at the start of each turn." },
+    { name: "Webbing", description: "The beast can entangle targets in webs as a ranged or melee attack. On a hit, the target must succeed on a Dexterity save (DC 10) or be restrained for 1d4 rounds. While in contact with a web, the beast knows the exact location of any creature touching it. The beast ignores movement restrictions caused by webs." }
+  ],
+  "Environmental Adaptation": [
+    { name: "Amphibious Breath", description: "The beast can breathe both air and water." },
+    { name: "Camouflage", needsSelection: "environment", description: "Choose an environment (forest, plains, underwater, etc.). The beast has advantage on Stealth checks made in that environment." },
+    { name: "Hold Breath", description: "The beast can hold its breath for up to 30 minutes." }
+  ],
+  "Physical Form": [
+    { name: "Apex Predator", description: "The beast is a solitary, apex threat. Its hit points are doubled. It cannot benefit from other HP-increasing effects. Selecting this ability increases its CR by +1." },
+    { name: "Beast of Burden", description: "The beast’s carrying capacity is doubled (push, pull, lift, carry)." },
+    { name: "Larger", description: "The beast increases by one size category. Its Strength increases by +2, Dexterity decreases by –2, and AC decreases by 1. Its natural attack damage scales as if it were 2 CR higher. This ability may be taken multiple times, stacking in size and attribute adjustments." },
+    { name: "Swarm", description: "The beast represents a swarm of smaller creatures. It can occupy the same space as other creatures and can move through any opening large enough for one member of the swarm. It cannot regain HP or gain temporary HP." }
+  ],
+  "Enhancements": [
+    { name: "Improved Ability", description: "Choose one beast ability that forces a saving throw. The save DC increases by +2. This ability may be taken multiple times, stacking with different abilities." },
+    { name: "Improved Attribute", needsSelection: "attribute", description: "Increase one attribute of the beast by +2. This ability may be taken multiple times, stacking." },
+    { name: "Mimicry", description: "The beast can mimic simple sounds it has heard, such as voices, cries, or noises. A listener can recognize them as imitations with a DC 10 Insight check." },
+    { name: "Proficient", description: "The beast’s proficiency bonus increases by +1, up to the maximum allowed by its final CR. This ability may be taken multiple times." },
+    { name: "Skilled", needsSelection: "combatSkill", description: "The beast gains proficiency in one combat-related or physical skill (such as Athletics, Perception, Stealth, or Survival). This ability may be taken multiple times with different skills." },
+    { name: "Feat", description: "The beast gains one feat of your choice (from the feat list). GM discretion may limit which feats are appropriate." }
+  ]
+};
+
+
             
             const featsByCategory = {
-                'General': [
-                    { name: 'Ability Score Increase', cost: 7, needsSelection: 'attribute', description: '+1 to any ability score' },
-                    { name: 'Advanced Training: Diplomat', cost: 9, requirements: 'Charisma 13+, Persuasion', description: 'Gain Inspire ability' },
-                    { name: 'Advanced Training: Engineer', cost: 9, requirements: 'Intelligence 13+, Engineering', description: 'Gain Jury Rig ability' },
-                    { name: 'Advanced Training: Medic', cost: 9, requirements: 'Wisdom 13+, Medicine', description: 'Gain First Aid ability' },
-                    { name: 'Advanced Training: Scientist', cost: 9, requirements: 'Intelligence 13+, Science', description: 'Gain Eureka ability' },
-                    { name: 'Advanced Training: Scout', cost: 9, requirements: 'Constitution 13+, Survival', description: 'Gain Survivalist ability' },
-                    { name: 'Advanced Training: Soldier', cost: 9, requirements: 'Constitution 13+, Intimidation', description: 'Gain Tactical Flexibility' },
-                    { name: 'Airborne School', cost: 3, requirements: 'Athletics', description: 'Resistance to falling damage' },
-                    { name: 'Apt Analogy', cost: 5, requirements: 'Science', description: 'Grant +TD to ally Int/Wis checks' },
-                    { name: 'Battlefield Medicine', cost: 6, requirements: 'Med Kit proficiency', description: 'Heal ability damage with Med Kit' },
-                    { name: 'Casual Genius', cost: 6, requirements: 'Eureka ability', description: 'Start with Eureka points' },
-                    { name: 'Chaplain School', cost: 3, requirements: 'Insight', description: 'No auto-fail on 1 in Convince' },
-                    { name: 'Convincing', cost: 9, requirements: 'Inspire ability', description: 'Add Cha to Inspire temp HP' },
-                    { name: 'Cross-Discipline Study', cost: 9, requirements: 'Intelligence 13+', description: 'Half prof to non-proficient mental skills' },
-                    { name: 'De-escalate', cost: 5, requirements: 'Persuasion', description: 'Reduce tension die once per rest' },
-                    { name: 'Determined', cost: 9, requirements: 'Wisdom 13+', description: 'Reroll low d20 rolls with DP' },
-                    { name: 'Dive School', cost: 3, requirements: 'Athletics', description: 'Hold breath longer, swim speed' },
-                    { name: 'Escalate', cost: 5, requirements: 'Intimidation', description: 'Increase tension die once per rest' },
-                    { name: 'Exceptional Expertise', cost: 9, needsSelection: 'skill', requirements: 'Proficiency with chosen skill', description: 'Double proficiency for skill' },
-                    { name: 'Fighter Ace', cost: 5, requirements: 'Pilot', description: '+d6 to aerial position pool' },
-                    { name: 'First Response', cost: 9, requirements: 'First Aid ability', description: 'Add Wis to healing, heal as action' },
-                    { name: 'Force of Will', cost: 5, requirements: 'Inspire ability', description: 'Use Inspire on rest, already inspired immune' },
-                    { name: 'For Science!', cost: 5, requirements: 'Eureka ability, Science', description: 'Eureka for Charisma checks' },
-                    { name: 'Good Cop / Bad Cop', cost: 5, requirements: 'Investigation', description: 'Adjust interrogation threshold by TD' },
-                    { name: 'Great Mind', cost: 9, requirements: 'Intelligence 13+, Wisdom 13+', description: 'Immune to Charmed, advantage on Insight' },
-                    { name: 'Hardy', cost: 5, description: 'Improve HD by one step (d8->d10, d10->d12)' },
-                    { name: 'Heavy Armor Proficiency', cost: 3, requirements: 'Light Armor Proficiency', description: 'Gain heavy armor proficiency' },
-                    { name: 'Improved Initiative', cost: 6, description: 'Add proficiency bonus to Initiative' },
-                    { name: 'Skill Proficiency', cost: 3, needsSelection: 'skill', description: 'Gain skill proficiency' },
-                    { name: 'Tool Proficiency', cost: 3, needsSelection: 'tool', description: 'Gain tool proficiency' },
-                    { name: 'Weapon Proficiency', cost: 3, needsSelection: 'weapon', description: 'Gain weapon proficiency' }
-                ],
+"General": [
+    { name: "Ability Score Increase", cost: 7, needsSelection: "attribute", description: "Increase one ability score by +1 (to a maximum of 20)." },
+    { name: "Advanced Training: Diplomat", cost: 9, requirements: "Charisma 13+, Persuasion", description: "Gain the Diplomat’s Inspire ability." },
+    { name: "Advanced Training: Engineer", cost: 9, requirements: "Intelligence 13+, Engineering", description: "Gain the Engineer’s Jury Rig ability." },
+    { name: "Advanced Training: Medic", cost: 9, requirements: "Wisdom 13+, Medicine", description: "Gain the Medic’s First Aid ability." },
+    { name: "Advanced Training: Scientist", cost: 9, requirements: "Intelligence 13+, Science", description: "Gain the Scientist’s Eureka ability." },
+    { name: "Advanced Training: Scout", cost: 9, requirements: "Constitution 13+, Survival", description: "Gain the Scout’s Survivalist ability." },
+    { name: "Advanced Training: Soldier", cost: 9, requirements: "Constitution 13+, Intimidation", description: "Gain the Soldier’s Tactical Flexibility ability." },
+    { name: "Airborne School", cost: 3, requirements: "Athletics", description: "Gain resistance to falling damage and advantage on parachute checks below 1km altitude." },
+    { name: "Apt Analogy", cost: 5, requirements: "Science", description: "Once per short rest, grant a +TD bonus to an ally’s Int or Wis check by simplifying a complex idea." },
+    { name: "Battlefield Medicine", cost: 6, requirements: "Med Kit proficiency", description: "When using a Med Kit during a rest, also heal 1 point of physical ability damage (Str, Dex, Con)." },
+    { name: "Casual Genius", cost: 6, requirements: "Eureka ability", description: "Start each mission with Eureka points equal to half your proficiency bonus (rounded down)." },
+    { name: "Chaplain School", cost: 3, requirements: "Insight", description: "During Convince encounters, you do not automatically fail on a natural 1." },
+    { name: "Convincing", cost: 9, requirements: "Inspire ability", description: "Add your Charisma modifier to the temporary HP granted by Inspire." },
+    { name: "Cross-Discipline Study", cost: 9, requirements: "Intelligence 13+", description: "Add half your proficiency bonus to Int, Wis, or Cha checks you aren’t proficient in." },
+    { name: "De-escalate", cost: 5, requirements: "Persuasion", description: "Once per rest, spend a DP to reduce the tension die by one step for the current encounter/scene." },
+    { name: "Determined", cost: 9, requirements: "Wisdom 13+", description: "Once per long rest, reroll a d20 roll of 5 or less by spending a Determination Point." },
+    { name: "Dive School", cost: 3, requirements: "Athletics", description: "Hold your breath twice as long and gain a 3m swim speed (6m with gear)." },
+    { name: "Escalate", cost: 5, requirements: "Intimidation", description: "Once per rest, spend a DP to increase the tension die by one step for the current encounter/scene." },
+    { name: "Exceptional Expertise", cost: 9, needsSelection: "skill", requirements: "Proficiency with chosen skill", description: "Double your proficiency bonus with the chosen skill. Can be taken multiple times for different skills." },
+    { name: "Fighter Ace", cost: 5, requirements: "Pilot", description: "Gain +1d6 to your aerial combat position pool. Can be taken multiple times." },
+    { name: "First Response", cost: 9, requirements: "First Aid ability", description: "Add Wisdom modifier to Med Kit healing and use a Med Kit as an action." },
+    { name: "Force of Will", cost: 5, requirements: "Inspire ability", description: "Use Inspire during rests. Allies already benefiting from Inspire are unaffected." },
+    { name: "For Science!", cost: 5, requirements: "Eureka ability, Science", description: "Spend a Eureka point to gain advantage on Charisma checks (in addition to Int and Wis)." },
+    { name: "Good Cop / Bad Cop", cost: 5, requirements: "Investigation", description: "Adjust interrogation thresholds up or down by a TD roll. Two players can combine roles." },
+    { name: "Great Mind", cost: 9, requirements: "Intelligence 13+, Wisdom 13+", description: "Gain immunity to the Charmed condition and advantage on Insight checks to detect lies." },
+    { name: "Hardy", cost: 5, description: "Increase your hit die one step (d8→d10, d10→d12). Retroactively increases HP by +1 per level. Cannot exceed d12." },
+    { name: "Heavy Armor Proficiency", cost: 3, requirements: "Light Armor Proficiency", description: "Gain proficiency with heavy armor." },
+    { name: "Improved Initiative", cost: 6, description: "Add your proficiency bonus to Initiative rolls." },
+    { name: "Improved Moxie", cost: 6, description: "Add your proficiency bonus to Moxie checks." },
+    { name: "Jag School", cost: 5, requirements: "Persuasion", description: "During Convince encounters, you score a critical success on a roll of 19 or 20." },
+    { name: "Jumpmaster", cost: 3, requirements: "Airborne School", description: "Spend a DP and 1 hour to extend Airborne School benefits to allies equal to your proficiency bonus." },
+    { name: "Light Armor Proficiency", cost: 3, description: "Gain proficiency with light armor." },
+    { name: "Linguist", cost: 5, requirements: "Charisma 13+, Culture", description: "Decipher unknown languages with Culture checks; translators speed up learning." },
+    { name: "Man Down", cost: 5, requirements: "First Aid ability", description: "Allies within 1m of you require one fewer successful death saves to stabilize." },
+    { name: "Martial Arts Proficiency", cost: 5, description: "Gain proficiency in one martial art. Martial arts attacks deal 1d6 + Str damage." },
+    { name: "Pathfinder", cost: 3, requirements: "Survival", description: "During Traversal encounters, reduce Journey deck card return by 1 (minimum 1)." },
+    { name: "Pep Talk", cost: 5, requirements: "Charisma 13+", description: "Once per mission, restore 1d4 Determination Points to your team with a speech." },
+    { name: "Physician Heal Thyself", cost: 5, requirements: "First Aid ability", description: "You may use a Med Kit on yourself as a bonus action." },
+    { name: "Pre-Planned Obsolescence", cost: 5, requirements: "Engineering", description: "Rig a machine to explode, dealing 6d6 damage in 3m (Dex save half, DC 8 + Int + Prof). Perception DC 20 to spot." },
+    { name: "Rapid Recuperation", cost: 5, requirements: "Constitution 13+", description: "Recover 1d4 exhaustion levels on a long rest instead of 1." },
+    { name: "Resilient Mind", cost: 5, requirements: "Intelligence 13+", description: "Reduce Int, Wis, or Cha damage suffered by 1 point (minimum 1)." },
+    { name: "Resonant Words", cost: 5, requirements: "Word in an Ear ability", description: "Your Word in an Ear Inspire heals an additional die. May be taken multiple times at higher levels." },
+    { name: "Rumormonger", cost: 3, requirements: "Intimidation", description: "During Diplomatic encounters, impede two actions instead of one when using Thwart." },
+    { name: "Skill Proficiency", cost: 3, needsSelection: "skill", description: "Gain proficiency in one skill of your choice. Can be taken multiple times." },
+    { name: "Strong Personality", cost: 6, requirements: "Inspire ability", description: "Increase your Inspire die by one size (max 1d12). Can be taken multiple times." },
+    { name: "Team Player", cost: 3, requirements: "Improved Initiative or Improved Moxie", description: "Swap Initiative or Moxie rolls with an ally after rolling." },
+    { name: "Tool Proficiency", cost: 3, needsSelection: "tool", description: "Gain proficiency in one tool. Can be taken multiple times." },
+    { name: "Tranq Concoction", cost: 5, requirements: "First Aid ability", description: "Increase the save DC of tranquilizers and sedatives by your proficiency bonus." },
+    { name: "Triage", cost: 9, requirements: "First Aid ability", description: "With a DC 20 Medicine check as a bonus action, learn a target’s current HP, max HP, and hit dice." },
+    { name: "Tune-Up", cost: 5, requirements: "Engineering", description: "Add your Intelligence modifier to machine repairs or temporary HP granted." },
+    { name: "Unnoticed Field Medic", cost: 9, requirements: "First Aid ability", description: "When you heal an ally with First Aid, attacks against you have disadvantage until your next turn." },
+    { name: "Unusual Approach", cost: 7, description: "Use a different mental ability score (Int, Wis, Cha) for checks with one chosen skill." },
+    { name: "Unwavering", cost: 3, description: "Increase your base Determination Points by +1. Can be taken multiple times up to proficiency bonus." },
+    { name: "Veil of Distractions", cost: 5, requirements: "Stealth", description: "Once per Infiltration encounter, reduce Alertness track by one step when it increases." },
+    { name: "Weapon Proficiency", cost: 3, needsSelection: "weapon", description: "Gain proficiency with one weapon type (sidearm, longarm, gunnery, etc.). Can be taken multiple times." },
+    { name: "Whack-It", cost: 9, requirements: "Engineering", description: "As a bonus action, give a machine +1d6 temporary HP. If above half HP, it begins functioning again." },
+    { name: "Wingman", cost: 3, requirements: "Deception", description: "During Diplomatic encounters, grant an ally a DP and advantage on their action." },
+    { name: "Word in an Ear", cost: 9, requirements: "Inspire ability", description: "Inspire one ally within 1m as an action. They gain Inspire HP. A target may benefit once per long rest." }
+  ],
                 'Combat - General': [
                     { name: 'Attack Specialist', cost: 4, requirements: 'Level 5', description: 'Double damage dice with weapon' },
                     { name: 'Attack Veteran', cost: 4, requirements: 'Level 11, Attack Specialist', description: 'Triple damage dice with weapon' },
