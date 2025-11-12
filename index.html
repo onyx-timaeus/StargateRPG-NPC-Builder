@@ -37,6 +37,14 @@
             -webkit-line-clamp: 2;
             -webkit-box-orient: vertical;
         }
+
+        /* Consistent card sizing */
+        .feat-card {
+            min-height: 120px;
+        }
+        .selected-feat-card {
+            min-height: 140px;
+        }
         
         /* Range slider custom styles */
         input[type="range"] {
@@ -329,18 +337,18 @@ const featsByCategory = {
     { name: "Word in an Ear", cost: 9, requirements: "Inspire ability", description: "You can inspire a single team member within 1m as an action. Roll your Inspire HP die and grant the target Inspire HP as normal. Characters who currently have Inspire HP are immune to this ability. A character may only be targeted by your Word In An Ear once per long rest (although other characters may still inspire them)." }
   ],
   "Combat - General": [
-    { name: "Attack Specialist", cost: 4, requirements: "Level 5", description: "Choose one weapon proficiency with which you are proficient. When making attacks with that proficiency you roll twice as many weapon damage dice as normal. Bonus dice from other sources (such as Power Attack or Vanguard) and static modifiers (such as from Strength and Dexterity), are not doubled. You may purchase this feat multiple times, applying it to a different weapon proficiency each time." },
-    { name: "Attack Veteran", cost: 4, requirements: "Level 11, Attack Specialist with chosen Weapon Proficiency", description: "Choose one weapon proficiency with which you have selected with the Attack Specialist feat. When making attacks with that proficiency you roll triple as many weapon damage dice for damage instead of double. You may purchase this feat multiple times, applying it to a different weapon proficiency each time." },
-    { name: "Attack Ace", cost: 4, requirements: "Level 17, Attack Veteran with chosen Weapon Proficiency", description: "Choose one weapon proficiency with which you have selected with the Attack Veteran feat. When making attacks with that proficiency you roll quadruple as many weapon damage dice for damage instead of triple. You may purchase this feat multiple times, applying it to a different weapon proficiency each time." },
+    { name: "Attack Specialist", cost: 4, needsSelection: "weapon", requirements: "Level 5", description: "Choose one weapon proficiency with which you are proficient. When making attacks with that proficiency you roll twice as many weapon damage dice as normal. Bonus dice from other sources (such as Power Attack or Vanguard) and static modifiers (such as from Strength and Dexterity), are not doubled. You may purchase this feat multiple times, applying it to a different weapon proficiency each time." },
+    { name: "Attack Veteran", cost: 4, needsSelection: "weapon", requirements: "Level 11, Attack Specialist with chosen Weapon Proficiency", description: "Choose one weapon proficiency with which you have selected with the Attack Specialist feat. When making attacks with that proficiency you roll triple as many weapon damage dice for damage instead of double. You may purchase this feat multiple times, applying it to a different weapon proficiency each time." },
+    { name: "Attack Ace", cost: 4, needsSelection: "weapon", requirements: "Level 17, Attack Veteran with chosen Weapon Proficiency", description: "Choose one weapon proficiency with which you have selected with the Attack Veteran feat. When making attacks with that proficiency you roll quadruple as many weapon damage dice for damage instead of triple. You may purchase this feat multiple times, applying it to a different weapon proficiency each time." },
     { name: "Co-ordinated Attack", cost: 7, description: "When you make an attack against a target who is within 1m of one or more of your allies, you deal +TD damage." },
-    { name: "Critical Focus", cost: 5, requirements: "Proficient with the chosen weapon", description: "Choose a weapon proficiency. When you score a critical hit with that type of weapon, add your Proficiency bonus to the damage dealt." },
+    { name: "Critical Focus", cost: 5, needsSelection: "weapon", requirements: "Proficient with the chosen weapon", description: "Choose a weapon proficiency. When you score a critical hit with that type of weapon, add your Proficiency bonus to the damage dealt." },
     { name: "Critical Effect", cost: 9, needsSelection: "condition", requirements: "Critical Focus", description: "Choose Blinded, Deafened, or Stunned. When you deal additional damage with the Critical Focus feat you apply the chosen effect to the target for a number of rounds equal to your Proficiency bonus." },
     { name: "Die Hard", cost: 3, requirements: "Constitution 13+", description: "You require 1 fewer successful saves to avoid dying (see page 122). If you reduce the number of required saves to 0 you automatically stabilize. You may take this feat up to 3 times, increasing its cost each time as noted above." },
     { name: "Dodge", cost: 5, requirements: "Dexterity 13", description: "You add +1 to your AC when wearing light or no armor." },
     { name: "Evasion", cost: 9, requirements: "Dexterity 13+", description: "You can nimbly dodge out of the way of certain area effects. When you are subjected to an effect that allows a Dexterity saving throw to take only half damage, you instead take no damage if you succeed and only half damage if you fail." },
     { name: "Hold Together", cost: 9, requirements: "Engineering", description: "When you benefit from cover, you gain resistance to the damage of attacks hindered by that cover." },
     { name: "Horse Lord", cost: 3, requirements: "Animal Handling", description: "You may mount a living creature by spending 1m of movement rather than half your movement. In addition, you may treat an untrained mount as trained for an encounter by taking an action and succeeding at an Animal Handling check contested by a Wisdom save from the beast." },
-    { name: "Improved Critical", cost: 9, requirements: "Proficiency with three weapon types other than common", description: "Choose a weapon type you are proficient with (such as Longarm, Sidearm, or Common). When using this weapon type you score a critical hit on a 19 or 20 on the die." },
+    { name: "Improved Critical", cost: 9, needsSelection: "weapon", requirements: "Proficiency with three weapon types other than common", description: "Choose a weapon type you are proficient with (such as Longarm, Sidearm, or Common). When using this weapon type you score a critical hit on a 19 or 20 on the die." },
     { name: "Kip Up", cost: 3, requirements: "Acrobatics or Athletics", description: "You may stand from prone by spending 1m of movement instead of half your movement." },
     { name: "Look Alive", cost: 9, requirements: "Wisdom 13+", description: "If you succeed at a Surprise check (see page 148), you are not surprised and may choose one team member to not be surprised." },
     { name: "Organ Targeting", cost: 9, requirements: "Medicine", description: "You deal an additional 1d6 damage on attacks that have advantage or against a wounded target." },
@@ -357,8 +365,8 @@ const featsByCategory = {
     { name: "Takedown", cost: 7, requirements: "Dexterity 13+", description: "When you roll damage against an extra, you roll two tension dice and take the better result." },
     { name: "Uncanny Dodge", cost: 5, requirements: "Dexterity 13+", description: "When an attacker that you can see hits you with an attack, you can use your reaction to gain resistance to the damage. This ability does not function against attacks that deal damage in an area or cone (but it does work against line effects)." },
     { name: "Unyielding", cost: 3, requirements: "Constitution 11+", description: "Whenever you are suffering from levels of exhaustion, you treat your total exhaustion level as 1 lower." },
-    { name: "Weapon Specialization", cost: 4, description: "Choose a type of weapon (such as Common, Sidearm, Longarm, etc).. You gain +1 to hit and damage with the chosen weapon type. You may select this feat multiple times, selecting a different weapon type each time. You may select this feat a second time for the same weapon type at 8th level, a third time at 11th level, a fourth time at 14th level, and a fifth time at 17th level." },
-    { name: "Weapons Akimbo", cost: 9, requirements: "Proficient with chosen weapon", description: "Choose a weapon type that can be wielded in one hand (such as Sidearms or Blades). When you make an attack with two of the chosen weapon (one in each hand) you may re-roll 1s on the damage dice. You do not roll to attack twice or deal damage from both weapons (roll only once, but spend capacity from both weapons if necessary). You may purchase this ability multiple times, choosing a different weapon type each time. After the first time you purchase this ability, its cost is reduced to 3MP." }
+    { name: "Weapon Specialization", cost: 4, needsSelection: "weapon", description: "Choose a type of weapon (such as Common, Sidearm, Longarm, etc).. You gain +1 to hit and damage with the chosen weapon type. You may select this feat multiple times, selecting a different weapon type each time. You may select this feat a second time for the same weapon type at 8th level, a third time at 11th level, a fourth time at 14th level, and a fifth time at 17th level." },
+    { name: "Weapons Akimbo", cost: 9, needsSelection: "oneHandedWeapon", requirements: "Proficient with chosen weapon", description: "Choose a weapon type that can be wielded in one hand (such as Sidearms or Blades). When you make an attack with two of the chosen weapon (one in each hand) you may re-roll 1s on the damage dice. You do not roll to attack twice or deal damage from both weapons (roll only once, but spend capacity from both weapons if necessary). You may purchase this ability multiple times, choosing a different weapon type each time. After the first time you purchase this ability, its cost is reduced to 3MP." }
   ],
   "Combat - Melee": [
     { name: "Blind-Fighter", cost: 3, requirements: "Perception", description: "You do not suffer disadvantage when making melee attacks while unable to see." },
@@ -560,8 +568,12 @@ const featsByCategory = {
                         const regex = new RegExp(`${check.name} (\\d+)\\+`);
                         const match = reqs.match(regex);
                         if (match) {
-                            const finalScore = parseInt(npc.abilityScores[check.key]) + (parseInt(npc.bonusAttributes[check.key]) || 0);
-                            if (finalScore < parseInt(match[1])) return false;
+                            const baseScore = npc.abilityScores[check.key];
+                            const bonusScore = npc.bonusAttributes[check.key];
+                            const bonusValue = (bonusScore === '' || bonusScore === null || bonusScore === undefined) ? 0 : parseInt(bonusScore);
+                            const finalScore = baseScore + bonusValue;
+                            const requiredScore = parseInt(match[1]);
+                            if (finalScore < requiredScore) return false;
                         }
                     }
                 }
@@ -808,6 +820,9 @@ ${getAttackBonus()}${npc.attackSpecialization ? ` (${npc.attackSpecialization})`
                     options = toolTypes;
                 } else if (selectionType === 'weapon') {
                     options = weaponTypes;
+                } else if (selectionType === 'oneHandedWeapon') {
+                    // One-handed weapons for Weapons Akimbo
+                    options = ['Common Weapons', 'Sidearms', 'Martial Arts'];
                 }
                 
                 const value = isBeast ? npc.beastAbilitySelections[itemName] : npc.featSelections[itemName];
@@ -1269,7 +1284,7 @@ ${getAttackBonus()}${npc.attackSpecialization ? ` (${npc.attackSpecialization})`
                                                                 }
                                                             }}
                                                             disabled={isSelected || !canSelect}
-                                                            className={`p-3 rounded-lg border-2 transition-all text-left ${
+                                                            className={`p-3 rounded-lg border-2 transition-all text-left feat-card ${
                                                                 isSelected
                                                                     ? 'border-gray-600 bg-gray-700/50 opacity-50'
                                                                     : canSelect
@@ -1280,7 +1295,7 @@ ${getAttackBonus()}${npc.attackSpecialization ? ` (${npc.attackSpecialization})`
                                                             <div className="flex justify-between items-start mb-2">
                                                                 <span className="font-semibold text-sm text-white flex-1">{ability.name}</span>
                                                             </div>
-                                                            <div className="text-xs text-gray-400 line-clamp-2">{ability.description}</div>
+                                                            <div className="text-xs text-gray-400">{ability.description}</div>
                                                             {isSelected && (
                                                                 <div className="text-xs text-gray-500 mt-2">Already Selected</div>
                                                             )}
@@ -1314,7 +1329,7 @@ ${getAttackBonus()}${npc.attackSpecialization ? ` (${npc.attackSpecialization})`
                                                         return (
                                                             <div
                                                                 key={abilityName}
-                                                                className="p-3 rounded-lg border-2 border-blue-400/40 bg-blue-500/30 relative cursor-pointer hover:bg-blue-500/40 transition-all"
+                                                                className="p-3 rounded-lg border-2 border-blue-400/40 bg-blue-500/30 relative cursor-pointer hover:bg-blue-500/40 transition-all selected-feat-card"
                                                                 onClick={() => {
                                                                     setNpc(prev => {
                                                                         const newSelections = { ...prev.beastAbilitySelections };
@@ -1330,9 +1345,8 @@ ${getAttackBonus()}${npc.attackSpecialization ? ` (${npc.attackSpecialization})`
                                                                 <div className="flex justify-between items-start mb-2">
                                                                     <span className="font-semibold text-sm text-white flex-1">{ability.name}</span>
                                                                 </div>
-                                                                <div className="text-xs text-gray-200 line-clamp-2 mb-2">{ability.description}</div>
+                                                                <div className="text-xs text-gray-200 mb-2">{ability.description}</div>
                                                                 {renderSelection(ability.name, true)}
-                                                                <div className="text-xs text-blue-200 mt-2">Click to remove</div>
                                                             </div>
                                                         );
                                                     })}
@@ -1435,7 +1449,7 @@ ${getAttackBonus()}${npc.attackSpecialization ? ` (${npc.attackSpecialization})`
                                                                 }
                                                             }}
                                                             disabled={isSelected || !canSelect}
-                                                            className={`p-3 rounded-lg border-2 transition-all text-left ${
+                                                            className={`p-3 rounded-lg border-2 transition-all text-left feat-card ${
                                                                 isSelected
                                                                     ? 'border-gray-600 bg-gray-700/50 opacity-50'
                                                                     : canSelect
@@ -1449,11 +1463,11 @@ ${getAttackBonus()}${npc.attackSpecialization ? ` (${npc.attackSpecialization})`
                                                                     {feat.cost} MP
                                                                 </span>
                                                             </div>
-                                                            <div className="text-xs text-gray-400 line-clamp-2">{feat.description}</div>
+                                                            <div className="text-xs text-gray-400">{feat.description}</div>
                                                             {feat.requirements && (
                                                                 <div className="text-xs mt-2">
                                                                     <span className={meetsRequirements ? 'text-green-400' : 'text-red-400'}>
-                                                                        Req: {feat.requirements.length > 30 ? feat.requirements.substring(0, 30) + '...' : feat.requirements}
+                                                                        Req: {feat.requirements}
                                                                     </span>
                                                                 </div>
                                                             )}
@@ -1490,7 +1504,7 @@ ${getAttackBonus()}${npc.attackSpecialization ? ` (${npc.attackSpecialization})`
                                                         return (
                                                             <div
                                                                 key={featName}
-                                                                className="p-3 rounded-lg border-2 border-blue-400/40 bg-blue-500/30 relative cursor-pointer hover:bg-blue-500/40 transition-all"
+                                                                className="p-3 rounded-lg border-2 border-blue-400/40 bg-blue-500/30 relative cursor-pointer hover:bg-blue-500/40 transition-all selected-feat-card"
                                                                 onClick={() => {
                                                                     setNpc(prev => {
                                                                         const newSelections = { ...prev.featSelections };
@@ -1509,9 +1523,8 @@ ${getAttackBonus()}${npc.attackSpecialization ? ` (${npc.attackSpecialization})`
                                                                         {feat.cost} MP
                                                                     </span>
                                                                 </div>
-                                                                <div className="text-xs text-gray-200 line-clamp-2 mb-2">{feat.description}</div>
+                                                                <div className="text-xs text-gray-200 mb-2">{feat.description}</div>
                                                                 {renderSelection(feat.name)}
-                                                                <div className="text-xs text-blue-200 mt-2">Click to remove</div>
                                                             </div>
                                                         );
                                                     })}
