@@ -131,9 +131,7 @@
                 </svg>
             ),
             Search: ({ className = "w-4 h-4" }) => (
-                <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
+                <span className={className}>🔍</span>
             )
         };
         
@@ -143,6 +141,7 @@
                 name: '',
                 race: '',
                 cr: 1,
+                hitDie: 'd8',
                 type: '',
                 abilityScores: {
                     strength: 10,
@@ -191,6 +190,7 @@ const beastTypes = [
     { name: 'Quadruped', description: 'The creature\'s base move speed increases to 9m. It has either two hoof attacks, 2 claw attacks, or 1 bite attack, depending on the beast\'s anatomy. In addition, it is proficient in the Athletics (or Acrobatics if appropriate) and Survival skills.' },
     { name: 'Serpentine', description: 'The creature gains a climb and swim speed of 3m. It has one bite attack. In addition, it is proficient in the Stealth and Survival skills.' }
 ];
+            
             const selectionOptions = {
                 attributes: ['Strength', 'Dexterity', 'Constitution', 'Intelligence', 'Wisdom', 'Charisma'],
                 environments: ['Forest', 'Plains', 'Desert', 'Arctic', 'Underwater', 'Mountains', 'Urban', 'Swamp', 'Cave'],
@@ -262,7 +262,7 @@ const beastAbilitiesByCategory = {
 };
 
 
-
+            
 const featsByCategory = {
   "General": [
     { name: "Ability Score Increase", cost: 7, needsSelection: "attribute", description: "An ability score of your choice is increased by +1. No ability score can be raised above 20 in this way." },
@@ -633,18 +633,54 @@ const featsByCategory = {
                 const finalCon = npc.abilityScores.constitution + (parseInt(npc.bonusAttributes.constitution) || 0);
                 const finalWis = npc.abilityScores.wisdom + (parseInt(npc.bonusAttributes.wisdom) || 0);
                 
-                const baseHP = 10 + (npc.cr * 5) + (getModifier(finalCon) * npc.cr);
+                // Calculate HP using the proper formula
+                // Total HP = HD at level 1 + (average HD × (level - 1)) + (CON mod × level) + Racial HP
+                const level = npc.cr;
+                const conMod = getModifier(finalCon);
+                
+                // Get HD values (first level is full, rest are average)
+                let hdValue = 0;
+                let hdAverage = 0;
+                switch(npc.hitDie) {
+                    case 'd6':
+                        hdValue = 6;
+                        hdAverage = 4;
+                        break;
+                    case 'd8':
+                        hdValue = 8;
+                        hdAverage = 5;
+                        break;
+                    case 'd10':
+                        hdValue = 10;
+                        hdAverage = 6;
+                        break;
+                    case 'd12':
+                        hdValue = 12;
+                        hdAverage = 7;
+                        break;
+                    default:
+                        hdValue = 8;
+                        hdAverage = 5;
+                }
+                
+                // Racial HP bonus (one-time)
+                let racialHP = 0;
+                if (npc.race === 'Jaffa') racialHP = 5;
+                
+                // Calculate total HP
+                const totalHP = hdValue + (hdAverage * (level - 1)) + (conMod * level) + racialHP;
+                
                 const baseAC = 10 + getModifier(finalDex);
                 const initiative = Math.max(getModifier(finalDex), getModifier(finalWis));
                 
                 setNpc(prev => ({
                     ...prev,
-                    hp: baseHP,
+                    hp: totalHP,
                     ac: baseAC,
                     profBonus: getProficiencyBonus(npc.cr),
                     initiative: initiative
                 }));
-            }, [npc.cr, npc.abilityScores, npc.bonusAttributes]);
+            }, [npc.cr, npc.hitDie, npc.race, npc.abilityScores, npc.bonusAttributes]);
             
             // Point buy system
             const pointBuyCost = {
@@ -678,6 +714,7 @@ const featsByCategory = {
 Name: ${npc.name || 'Unnamed NPC'}
 Race: ${npc.race}${npc.race === 'Beast' ? ` (${npc.type || 'Untyped'})` : ''}
 Challenge Rating: ${npc.cr}
+Hit Die: ${npc.hitDie}
 
 ATTRIBUTES
 STR: ${getFinalScore('strength')} (${getModifier(getFinalScore('strength')) >= 0 ? '+' : ''}${getModifier(getFinalScore('strength'))})
@@ -689,7 +726,7 @@ CHA: ${getFinalScore('charisma')} (${getModifier(getFinalScore('charisma')) >= 0
 
 COMBAT STATS
 Armor Class: ${npc.ac}
-Hit Points: ${npc.hp}
+Hit Points: ${npc.hp} (${npc.cr}${npc.hitDie})
 Speed: ${npc.speed}m
 Proficiency Bonus: +${npc.profBonus}
 Initiative: ${npc.initiative >= 0 ? '+' : ''}${npc.initiative}
@@ -809,18 +846,89 @@ ${getAttackBonus()}${npc.attackSpecialization ? ` (${npc.attackSpecialization})`
                             </div>
                             
                             <div className="p-6 space-y-6">
-                                {/* NPC Name */}
-                                <div className="bg-gray-700/50 rounded-lg p-4">
-                                    <label className="block text-sm font-medium text-gray-300 mb-2">
-                                        NPC Name
-                                    </label>
-                                    <input
-                                        type="text"
-                                        value={npc.name}
-                                        onChange={(e) => setNpc(prev => ({ ...prev, name: e.target.value }))}
-                                        className="w-full px-4 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white focus:border-blue-500 focus:outline-none"
-                                        placeholder="Enter NPC name..."
-                                    />
+                                {/* First Row: CR, Hit Die, and Name */}
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    {/* Challenge Rating - Left */}
+                                    <div className="bg-gray-700/50 rounded-lg p-4">
+                                        <label className="block text-sm font-medium text-gray-300 mb-2">
+                                            Challenge Rating (CR)
+                                        </label>
+                                        <div className="flex items-center gap-2">
+                                            <button
+                                                onClick={() => setNpc(prev => ({ ...prev, cr: Math.max(1, prev.cr - 1) }))}
+                                                className="w-8 h-8 bg-gray-700 hover:bg-gray-600 rounded flex items-center justify-center text-white font-bold"
+                                            >
+                                                -
+                                            </button>
+                                            <input
+                                                type="text"
+                                                value={npc.cr}
+                                                onChange={(e) => {
+                                                    const value = e.target.value;
+                                                    // Allow empty string for typing
+                                                    if (value === '') {
+                                                        setNpc(prev => ({ ...prev, cr: '' }));
+                                                    } else {
+                                                        const num = parseInt(value);
+                                                        if (!isNaN(num)) {
+                                                            const clamped = Math.max(1, Math.min(20, num));
+                                                            setNpc(prev => ({ ...prev, cr: clamped }));
+                                                        }
+                                                    }
+                                                }}
+                                                onBlur={(e) => {
+                                                    // Set to 1 if empty on blur
+                                                    if (e.target.value === '') {
+                                                        setNpc(prev => ({ ...prev, cr: 1 }));
+                                                    }
+                                                }}
+                                                className="flex-1 px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white text-center text-xl font-bold focus:border-blue-500 focus:outline-none"
+                                            />
+                                            <button
+                                                onClick={() => setNpc(prev => ({ ...prev, cr: Math.min(20, prev.cr + 1) }))}
+                                                className="w-8 h-8 bg-gray-700 hover:bg-gray-600 rounded flex items-center justify-center text-white font-bold"
+                                            >
+                                                +
+                                            </button>
+                                        </div>
+                                        <div className="mt-2 text-xs text-gray-400">
+                                            Mission Points: {getMissionPoints()} MP
+                                        </div>
+                                    </div>
+                                    
+                                    {/* Hit Die - Middle */}
+                                    <div className="bg-gray-700/50 rounded-lg p-4">
+                                        <label className="block text-sm font-medium text-gray-300 mb-2">
+                                            Hit Die
+                                        </label>
+                                        <select
+                                            value={npc.hitDie}
+                                            onChange={(e) => setNpc(prev => ({ ...prev, hitDie: e.target.value }))}
+                                            className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white text-center text-xl font-bold focus:border-blue-500 focus:outline-none h-[42px]"
+                                        >
+                                            <option value="d6">d6</option>
+                                            <option value="d8">d8</option>
+                                            <option value="d10">d10</option>
+                                            <option value="d12">d12</option>
+                                        </select>
+                                        <div className="mt-2 text-xs text-gray-400">
+                                            Avg: {npc.hitDie === 'd6' ? '4' : npc.hitDie === 'd8' ? '5' : npc.hitDie === 'd10' ? '6' : '7'} HP/level
+                                        </div>
+                                    </div>
+                                    
+                                    {/* NPC Name - Right */}
+                                    <div className="bg-gray-700/50 rounded-lg p-4">
+                                        <label className="block text-sm font-medium text-gray-300 mb-2">
+                                            NPC Name
+                                        </label>
+                                        <input
+                                            type="text"
+                                            value={npc.name}
+                                            onChange={(e) => setNpc(prev => ({ ...prev, name: e.target.value }))}
+                                            className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white focus:border-blue-500 focus:outline-none h-[42px]"
+                                            placeholder="Enter NPC name..."
+                                        />
+                                    </div>
                                 </div>
                                 
                                 {/* Race Selection */}
@@ -883,41 +991,6 @@ ${getAttackBonus()}${npc.attackSpecialization ? ` (${npc.attackSpecialization})`
                                         </div>
                                     </div>
                                 )}
-                                
-                                {/* Challenge Rating Selection */}
-                                <div className="bg-gray-700/50 rounded-lg p-4">
-                                    <label className="block text-sm font-medium text-gray-300 mb-2">
-                                        Challenge Rating (CR)
-                                    </label>
-                                    <div className="flex items-center gap-4">
-                                        <button
-                                            onClick={() => setNpc(prev => ({ ...prev, cr: Math.max(1, prev.cr - 1) }))}
-                                            className="w-8 h-8 bg-gray-700 hover:bg-gray-600 rounded flex items-center justify-center text-white"
-                                        >
-                                            <Icons.Minus />
-                                        </button>
-                                        <input
-                                            type="range"
-                                            min="1"
-                                            max="20"
-                                            value={npc.cr}
-                                            onChange={(e) => setNpc(prev => ({ ...prev, cr: parseInt(e.target.value) }))}
-                                            className="flex-1"
-                                        />
-                                        <button
-                                            onClick={() => setNpc(prev => ({ ...prev, cr: Math.min(20, prev.cr + 1) }))}
-                                            className="w-8 h-8 bg-gray-700 hover:bg-gray-600 rounded flex items-center justify-center text-white"
-                                        >
-                                            <Icons.Plus />
-                                        </button>
-                                        <div className="bg-gray-800 px-4 py-2 rounded-lg border border-gray-600 min-w-[60px] text-center">
-                                            <span className="text-xl font-bold text-white">{npc.cr}</span>
-                                        </div>
-                                    </div>
-                                    <div className="mt-2 text-xs text-gray-400">
-                                        Mission Points Available: {getMissionPoints()} MP
-                                    </div>
-                                </div>
                                 
                                 {/* Ability Scores */}
                                 <div className="bg-gray-700/50 rounded-lg p-4">
@@ -1170,16 +1243,13 @@ ${getAttackBonus()}${npc.attackSpecialization ? ` (${npc.attackSpecialization})`
                                         
                                         {/* Search Bar */}
                                         <div className="mb-4">
-                                            <div className="relative">
-                                                <Icons.Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                                                <input
-                                                    type="text"
-                                                    value={featSearchQuery}
-                                                    onChange={(e) => setFeatSearchQuery(e.target.value)}
-                                                    placeholder="Search feats by name, description, or requirements..."
-                                                    className="w-full pl-10 pr-4 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:border-blue-500 focus:outline-none"
-                                                />
-                                            </div>
+                                            <input
+                                                type="text"
+                                                value={featSearchQuery}
+                                                onChange={(e) => setFeatSearchQuery(e.target.value)}
+                                                placeholder="Search feats by name, description, or requirements..."
+                                                className="w-full px-4 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:border-blue-500 focus:outline-none"
+                                            />
                                         </div>
                                         
                                         {/* Category Tabs */}
@@ -1275,9 +1345,9 @@ ${getAttackBonus()}${npc.attackSpecialization ? ` (${npc.attackSpecialization})`
                                             </div>
                                         </div>
                                         
-                                        {/* Selected Feats Grid - Changed to light blue-gray */}
+                                        {/* Selected Feats Grid - Changed to smooth blue */}
                                         {npc.feats.length > 0 && (
-                                            <div className="bg-blue-100/10 border-2 border-blue-300/30 rounded-lg p-4">
+                                            <div className="bg-blue-500/20 border-2 border-blue-500/40 rounded-lg p-4">
                                                 <h4 className="text-sm font-semibold text-blue-300 mb-3">
                                                     Selected Feats ({npc.feats.length})
                                                 </h4>
@@ -1294,7 +1364,7 @@ ${getAttackBonus()}${npc.attackSpecialization ? ` (${npc.attackSpecialization})`
                                                         return (
                                                             <div
                                                                 key={featName}
-                                                                className="p-3 rounded-lg border-2 border-blue-200/30 bg-gray-600/50 relative cursor-pointer hover:bg-gray-600/70 transition-all"
+                                                                className="p-3 rounded-lg border-2 border-blue-400/40 bg-blue-500/30 relative cursor-pointer hover:bg-blue-500/40 transition-all"
                                                                 onClick={() => {
                                                                     setNpc(prev => {
                                                                         const newSelections = { ...prev.featSelections };
@@ -1309,13 +1379,13 @@ ${getAttackBonus()}${npc.attackSpecialization ? ` (${npc.attackSpecialization})`
                                                             >
                                                                 <div className="flex justify-between items-start mb-2">
                                                                     <span className="font-semibold text-sm text-white flex-1">{feat.name}</span>
-                                                                    <span className="text-xs px-2 py-1 bg-blue-600/30 text-blue-300 rounded">
+                                                                    <span className="text-xs px-2 py-1 bg-blue-600/40 text-blue-200 rounded">
                                                                         {feat.cost} MP
                                                                     </span>
                                                                 </div>
-                                                                <div className="text-xs text-gray-300 line-clamp-2 mb-2">{feat.description}</div>
+                                                                <div className="text-xs text-gray-200 line-clamp-2 mb-2">{feat.description}</div>
                                                                 {renderSelection(feat.name)}
-                                                                <div className="text-xs text-blue-400 mt-2">Click to remove</div>
+                                                                <div className="text-xs text-blue-200 mt-2">Click to remove</div>
                                                             </div>
                                                         );
                                                     })}
