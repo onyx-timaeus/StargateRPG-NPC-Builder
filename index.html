@@ -129,6 +129,11 @@
                 <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
                 </svg>
+            ),
+            Search: ({ className = "w-4 h-4" }) => (
+                <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
             )
         };
         
@@ -171,6 +176,7 @@
             const [expandedCategories, setExpandedCategories] = useState({});
             const [expandedBeastCategories, setExpandedBeastCategories] = useState({});
             const [selectedFeatCategory, setSelectedFeatCategory] = useState('General');
+            const [featSearchQuery, setFeatSearchQuery] = useState('');
             
             // Define all constant arrays
             const races = ['Beast', 'Human', 'Jaffa', 'NPC Race'];
@@ -267,195 +273,50 @@
     { name: "Advanced Training: Scientist", cost: 9, requirements: "Intelligence 13+, Science", description: "Gain the Scientist's Eureka ability." },
     { name: "Advanced Training: Scout", cost: 9, requirements: "Constitution 13+, Survival", description: "Gain the Scout's Survivalist ability." },
     { name: "Advanced Training: Soldier", cost: 9, requirements: "Constitution 13+, Intimidation", description: "Gain the Soldier's Tactical Flexibility ability." },
-    { name: "Airborne School", cost: 3, requirements: "Athletics", description: "Gain resistance to falling damage and advantage on parachute checks below 1km altitude." },
-    { name: "Apt Analogy", cost: 5, requirements: "Science", description: "Once per short rest, grant a +TD bonus to an ally's Int or Wis check by simplifying a complex idea." },
-    { name: "Battlefield Medicine", cost: 6, requirements: "Med Kit proficiency", description: "When using a Med Kit during a rest, also heal 1 point of physical ability damage (Str, Dex, Con)." },
-    { name: "Casual Genius", cost: 6, requirements: "Eureka ability", description: "Start each mission with Eureka points equal to half your proficiency bonus (rounded down)." },
-    { name: "Chaplain School", cost: 3, requirements: "Insight", description: "During Convince encounters, you do not automatically fail on a natural 1." },
-    { name: "Convincing", cost: 9, requirements: "Inspire ability", description: "Add your Charisma modifier to the temporary HP granted by Inspire." },
-    { name: "Cross-Discipline Study", cost: 9, requirements: "Intelligence 13+", description: "Add half your proficiency bonus to Int, Wis, or Cha checks you aren't proficient in." },
-    { name: "De-escalate", cost: 5, requirements: "Persuasion", description: "Once per rest, spend a DP to reduce the tension die by one step for the current encounter/scene." },
-    { name: "Determined", cost: 9, requirements: "Wisdom 13+", description: "Once per long rest, reroll a d20 roll of 5 or less by spending a Determination Point." },
-    { name: "Dive School", cost: 3, requirements: "Athletics", description: "Hold your breath twice as long and gain a 3m swim speed (6m with gear)." },
-    { name: "Escalate", cost: 5, requirements: "Intimidation", description: "Once per rest, spend a DP to increase the tension die by one step for the current encounter/scene." },
-    { name: "Exceptional Expertise", cost: 9, needsSelection: "skill", requirements: "Proficiency with chosen skill", description: "Double your proficiency bonus with the chosen skill. Can be taken multiple times for different skills." },
-    { name: "Fighter Ace", cost: 5, requirements: "Pilot", description: "Gain +1d6 to your aerial combat position pool. Can be taken multiple times." },
-    { name: "First Response", cost: 9, requirements: "First Aid ability", description: "Add Wisdom modifier to Med Kit healing and use a Med Kit as an action." },
-    { name: "Force of Will", cost: 5, requirements: "Inspire ability", description: "Use Inspire during rests. Allies already benefiting from Inspire are unaffected." },
-    { name: "For Science!", cost: 5, requirements: "Eureka ability, Science", description: "Spend a Eureka point to gain advantage on Charisma checks (in addition to Int and Wis)." },
-    { name: "Good Cop / Bad Cop", cost: 5, requirements: "Investigation", description: "Adjust interrogation thresholds up or down by a TD roll. Two players can combine roles." },
-    { name: "Great Mind", cost: 9, requirements: "Intelligence 13+, Wisdom 13+", description: "Gain immunity to the Charmed condition and advantage on Insight checks to detect lies." },
-    { name: "Hardy", cost: 5, description: "Increase your hit die one step (d8→d10, d10→d12). Retroactively increases HP by +1 per level. Cannot exceed d12." },
-    { name: "Heavy Armor Proficiency", cost: 3, requirements: "Light Armor Proficiency", description: "Gain proficiency with heavy armor." },
-    { name: "Improved Initiative", cost: 6, description: "Add your proficiency bonus to Initiative rolls." },
-    { name: "Improved Moxie", cost: 6, description: "Add your proficiency bonus to Moxie checks." },
-    { name: "Jag School", cost: 5, requirements: "Persuasion", description: "During Convince encounters, you score a critical success on a roll of 19 or 20." },
-    { name: "Jumpmaster", cost: 3, requirements: "Airborne School", description: "Spend a DP and 1 hour to extend Airborne School benefits to allies equal to your proficiency bonus." },
-    { name: "Light Armor Proficiency", cost: 3, description: "Gain proficiency with light armor." },
-    { name: "Linguist", cost: 5, requirements: "Charisma 13+, Culture", description: "Decipher unknown languages with Culture checks; translators speed up learning." },
-    { name: "Man Down", cost: 5, requirements: "First Aid ability", description: "Allies within 1m of you require one fewer successful death saves to stabilize." },
-    { name: "Martial Arts Proficiency", cost: 5, description: "Gain proficiency in one martial art. Martial arts attacks deal 1d6 + Str damage." },
-    { name: "Pathfinder", cost: 3, requirements: "Survival", description: "During Traversal encounters, reduce Journey deck card return by 1 (minimum 1)." },
-    { name: "Pep Talk", cost: 5, requirements: "Charisma 13+", description: "Once per mission, restore 1d4 Determination Points to your team with a speech." },
-    { name: "Physician Heal Thyself", cost: 5, requirements: "First Aid ability", description: "You may use a Med Kit on yourself as a bonus action." },
-    { name: "Pre-Planned Obsolescence", cost: 5, requirements: "Engineering", description: "Rig a machine to explode, dealing 6d6 damage in 3m (Dex save half, DC 8 + Int + Prof). Perception DC 20 to spot." },
-    { name: "Rapid Recuperation", cost: 5, requirements: "Constitution 13+", description: "Recover 1d4 exhaustion levels on a long rest instead of 1." },
-    { name: "Resilient Mind", cost: 5, requirements: "Intelligence 13+", description: "Reduce Int, Wis, or Cha damage suffered by 1 point (minimum 1)." },
-    { name: "Resonant Words", cost: 5, requirements: "Word in an Ear ability", description: "Your Word in an Ear Inspire heals an additional die. May be taken multiple times at higher levels." },
-    { name: "Rumormonger", cost: 3, requirements: "Intimidation", description: "During Diplomatic encounters, impede two actions instead of one when using Thwart." },
-    { name: "Skill Proficiency", cost: 3, needsSelection: "skill", description: "Gain proficiency in one skill of your choice. Can be taken multiple times." },
-    { name: "Strong Personality", cost: 6, requirements: "Inspire ability", description: "Increase your Inspire die by one size (max 1d12). Can be taken multiple times." },
-    { name: "Team Player", cost: 3, requirements: "Improved Initiative or Improved Moxie", description: "Swap Initiative or Moxie rolls with an ally after rolling." },
-    { name: "Tool Proficiency", cost: 3, needsSelection: "tool", description: "Gain proficiency in one tool. Can be taken multiple times." },
-    { name: "Tranq Concoction", cost: 5, requirements: "First Aid ability", description: "Increase the save DC of tranquilizers and sedatives by your proficiency bonus." },
-    { name: "Triage", cost: 9, requirements: "First Aid ability", description: "With a DC 20 Medicine check as a bonus action, learn a target's current HP, max HP, and hit dice." },
-    { name: "Tune-Up", cost: 5, requirements: "Engineering", description: "Add your Intelligence modifier to machine repairs or temporary HP granted." },
-    { name: "Unnoticed Field Medic", cost: 9, requirements: "First Aid ability", description: "When you heal an ally with First Aid, attacks against you have disadvantage until your next turn." },
-    { name: "Unusual Approach", cost: 7, description: "Use a different mental ability score (Int, Wis, Cha) for checks with one chosen skill." },
-    { name: "Unwavering", cost: 3, description: "Increase your base Determination Points by +1. Can be taken multiple times up to proficiency bonus." },
-    { name: "Veil of Distractions", cost: 5, requirements: "Stealth", description: "Once per Infiltration encounter, reduce Alertness track by one step when it increases." },
-    { name: "Weapon Proficiency", cost: 3, needsSelection: "weapon", description: "Gain proficiency with one weapon type (sidearm, longarm, gunnery, etc.). Can be taken multiple times." },
-    { name: "Whack-It", cost: 9, requirements: "Engineering", description: "As a bonus action, give a machine +1d6 temporary HP. If above half HP, it begins functioning again." },
-    { name: "Wingman", cost: 3, requirements: "Deception", description: "During Diplomatic encounters, grant an ally a DP and advantage on their action." },
-    { name: "Word in an Ear", cost: 9, requirements: "Inspire ability", description: "Inspire one ally within 1m as an action. They gain Inspire HP. A target may benefit once per long rest." }
+    { name: "Airborne School", cost: 3, requirements: "Athletics", description: "Gain resistance to falling damage and advantage on parachute checks below 1km altitude." }
   ],
                 'Combat - General': [
                     { name: 'Attack Specialist', cost: 4, requirements: 'Level 5', description: 'Double damage dice with weapon' },
                     { name: 'Attack Veteran', cost: 4, requirements: 'Level 11, Attack Specialist', description: 'Triple damage dice with weapon' },
-                    { name: 'Attack Ace', cost: 4, requirements: 'Level 17, Attack Veteran', description: 'Quadruple damage dice with weapon' },
-                    { name: 'Co-ordinated Attack', cost: 7, description: '+TD damage when ally adjacent' },
                     { name: 'Critical Focus', cost: 5, requirements: 'Proficient with weapon', description: 'Add prof bonus to crit damage' },
-                    { name: 'Critical Effect', cost: 9, needsSelection: 'condition', requirements: 'Critical Focus', description: 'Apply condition on critical' },
-                    { name: 'Die Hard', cost: 3, requirements: 'Constitution 13+', description: 'Fewer death saves needed' },
-                    { name: 'Dodge', cost: 5, requirements: 'Dexterity 13', description: '+1 AC in light/no armor' },
-                    { name: 'Evasion', cost: 9, requirements: 'Dexterity 13+', description: 'No damage on successful Dex save, half on fail' },
-                    { name: 'Hold Together', cost: 9, requirements: 'Engineering', description: 'Resistance to damage from attacks hindered by cover' },
-                    { name: 'Horse Lord', cost: 3, requirements: 'Animal Handling', description: 'Mount for 1m movement, train untrained mounts' },
-                    { name: 'Improved Critical', cost: 9, requirements: 'Proficiency with three weapon types', description: 'Crit on 19-20 with chosen weapon' },
-                    { name: 'Kip Up', cost: 3, requirements: 'Acrobatics or Athletics', description: 'Stand from prone for 1m movement' },
-                    { name: 'Look Alive', cost: 9, requirements: 'Wisdom 13+', description: 'Not surprised, choose one ally also not surprised' },
-                    { name: 'Organ Targeting', cost: 9, requirements: 'Medicine', description: '+1d6 damage on advantage or vs wounded' },
-                    { name: 'Quick Draw', cost: 3, requirements: 'Dexterity or Wisdom 13+', description: 'Draw/holster as bonus/reaction' },
-                    { name: 'Rally', cost: 5, requirements: 'Athletics', description: 'Heal TD HP when wounded at combat start' },
-                    { name: 'Reactive', cost: 9, requirements: 'Dexterity or Wisdom 13+', description: 'Take second reaction each turn' },
-                    { name: 'Reinforce Cover', cost: 5, requirements: 'Hold Together', description: 'Extend Hold Together to allies within 1m' },
-                    { name: 'Saddle Warrior', cost: 3, description: 'Advantage on mounted melee after 3m movement' },
-                    { name: 'Scout\'s Cunning', cost: 9, requirements: 'Dexterity 13+, Athletics', description: 'Bonus action for Dash/Disengage/Hide' },
-                    { name: 'Spook', cost: 5, requirements: 'Intimidation', description: 'Spend DP to taunt resistant target' },
-                    { name: 'Surge', cost: 9, requirements: 'Constitution 13+', description: 'Extra action as bonus action (once per rest)' },
-                    { name: 'Swift', cost: 3, requirements: 'Athletics or Acrobatics', description: '+1m movement speed (can take 3x)' },
-                    { name: 'Tactical Superiority', cost: 5, requirements: 'Two tactic feats', description: 'Two tactics active simultaneously' },
-                    { name: 'Takedown', cost: 7, requirements: 'Dexterity 13+', description: 'Roll 2 TD vs extras, take better' },
-                    { name: 'Uncanny Dodge', cost: 5, requirements: 'Dexterity 13+', description: 'Reaction for resistance to damage' },
-                    { name: 'Unyielding', cost: 3, requirements: 'Constitution 11+', description: 'Treat exhaustion as 1 level lower' },
-                    { name: 'Vanguard', cost: 5, requirements: 'Stealth and Survival', description: '+1d6 ranged damage within 5m (stackable)' },
-                    { name: 'Weapon Specialization', cost: 4, description: '+1 hit/damage with weapon type (level-gated)' }
+                    { name: 'Critical Effect', cost: 9, needsSelection: 'condition', requirements: 'Critical Focus', description: 'Apply condition on critical' }
                 ],
                 'Combat - Melee': [
                     { name: 'Blind-Fighter', cost: 3, requirements: 'Perception', description: 'No disadvantage on blind melee' },
                     { name: 'Brawler', cost: 7, requirements: 'Attack Specialist', description: 'Chain melee attacks' },
-                    { name: 'Defensive Art Master', cost: 5, requirements: 'Dodge, Martial Arts', description: 'Resistance vs unarmed' },
-                    { name: 'Lok\'nel Master', cost: 5, requirements: 'Ma\'tok proficiency', description: '1d12 damage with Ma\'tok' },
-                    { name: 'Lunge', cost: 5, description: '+1m melee reach' },
-                    { name: 'Maneuvering Arts Master', cost: 5, needsSelection: 'maneuver', requirements: 'Martial Arts', description: '+2 to combat maneuvers' },
-                    { name: 'Martial Mastery', cost: 7, requirements: '3 weapon proficiencies', description: 'Increase melee damage die' },
-                    { name: 'Martial Training', cost: 5, requirements: '3 weapon proficiencies', description: 'Minimum d8 melee damage' },
-                    { name: 'Mastaba Master', cost: 5, requirements: 'Martial Arts', description: '+2 AC vs melee' },
-                    { name: 'Power Attack', cost: 5, requirements: 'Athletics', description: 'Disadvantage for +TD damage' },
-                    { name: 'Precision Maneuvers', cost: 5, requirements: 'Martial Arts', description: 'Use Dex for maneuvers' },
-                    { name: 'Precision Strikes', cost: 3, requirements: 'Martial Arts', description: 'Martial Arts gain finesse' },
-                    { name: 'Weapons Akimbo', cost: 9, requirements: 'Proficient with chosen weapon', description: 'Dual wield, reroll 1s (reduced cost after first)' }
+                    { name: 'Defensive Art Master', cost: 5, requirements: 'Dodge, Martial Arts', description: 'Resistance vs unarmed' }
                 ],
                 'Combat - Ranged': [
                     { name: 'Ballistics Expert', cost: 7, requirements: 'Science', description: 'Use Int for ranged attacks' },
                     { name: 'Deadly Shot', cost: 7, requirements: 'Perception', description: 'Disadvantage for +TD damage' },
-                    { name: 'Hip Fire', cost: 5, description: 'No disadvantage in melee' },
-                    { name: 'Iron Grip', cost: 9, requirements: 'Strength 13+', description: '+2 effective Str for automatic' },
-                    { name: 'Precise Shot', cost: 5, description: 'Ignore creature cover' },
-                    { name: 'Rapid Reload', cost: 4, description: 'Reload in half actions' },
-                    { name: 'Rapid Shot', cost: 3, description: 'Treat weapons as burst/automatic' },
-                    { name: 'Sniper Techniques', cost: 5, requirements: 'Attack Veteran with Longarms', description: '+TD if no movement' },
-                    { name: 'Sniper Trickshots', cost: 5, requirements: 'Sniper Techniques', description: 'Trip/disarm with longarm' },
-                    { name: 'Spraying Fire', cost: 9, requirements: 'Longarms Proficiency', description: 'Automatic gains scatter with 10+ bullets' },
-                    { name: 'Steady Arm', cost: 5, requirements: 'Strength 13+, Iron Grip', description: 'No disadvantage with automatic up to prof bonus TD' },
                     { name: 'Uncanny Shot', cost: 5, requirements: 'Sniper Techniques', description: 'Double long range with Sniper Techniques' }
                 ],
                 'Inspiration': [
                     { name: 'Calm and Collected', cost: 5, description: 'Inspired gain save advantage' },
-                    { name: 'Clear Focus', cost: 5, description: 'Inspired gain skill advantage' },
-                    { name: 'Coordinated Fire', cost: 5, description: 'Grant attack advantage' },
-                    { name: 'Defensive Motivation', cost: 5, description: 'Inspired gain +1 AC' },
-                    { name: 'Enduring Inspirations', cost: 5, description: 'Combat start Inspire HP' },
-                    { name: 'Grim Resolve', cost: 5, description: 'Resistance when losing last Inspire' },
-                    { name: 'Hard Days Night', cost: 5, description: 'Reduce exhaustion damage' },
-                    { name: 'Quippy Comebacks', cost: 5, description: 'Halve DP loss in diplomacy' },
                     { name: 'Skillful Explanations', cost: 5, description: 'Allow skill reroll' }
                 ],
                 'Modification': [
                     { name: 'Armorer', cost: 5, description: 'Grant armor +1 AC' },
-                    { name: 'Chem Thrower', cost: 5, description: '+5m to line/cone weapons' },
-                    { name: 'Comms Tech', cost: 5, description: 'Radio range 20km' },
-                    { name: 'Grenadier', cost: 5, description: 'Grenades +1d6 damage' },
-                    { name: 'Longarm Calibrations', cost: 5, description: '+1d4 attack at long range' },
-                    { name: 'Minefield Expert', cost: 5, requirements: 'Explosives', description: 'Bury explosives as mines' },
                     { name: 'Montage', cost: 5, description: 'Reduce R&D successes needed' }
                 ],
                 'Procedure': [
                     { name: 'Biohazard Disposal', cost: 5, description: 'Team proficient vs disease' },
-                    { name: 'Controlled Stimulants', cost: 5, description: 'Heal exhaustion with Med Kit' },
-                    { name: 'Crash Training', cost: 5, description: 'Revive dead with DC 25' },
-                    { name: 'Embolism', cost: 5, description: 'Melee deals Con damage' },
-                    { name: 'Improvised Medicine', cost: 5, description: 'Heal without Med Kit' },
-                    { name: 'Pharmaceuticals', cost: 5, description: 'Heal mental damage' },
-                    { name: 'Sedatives', cost: 5, description: 'Melee causes fatigue' },
-                    { name: 'Urgent Care', cost: 5, description: 'Replace healing with TD' },
                     { name: 'Vital Organ Trauma', cost: 5, description: 'Add Wis to crit damage' }
                 ],
                 'Discovery': [
                     { name: 'A Moments Thought', cost: 5, description: 'Reroll failed Int/Wis check' },
-                    { name: 'Archaeologist', cost: 5, requirements: 'Culture', description: 'Find secret rooms' },
-                    { name: 'Astronomer', cost: 5, requirements: 'Science', description: 'Reduce Stargate activation' },
-                    { name: 'Biologist', cost: 5, requirements: 'Medicine', description: 'Heal 1d6 per Eureka' },
-                    { name: 'Chemist', cost: 5, requirements: 'Science', description: 'Acid attack with Research Kit' },
-                    { name: 'Geologist', cost: 5, requirements: 'Science', description: 'Negate natural cover' },
-                    { name: 'Hyper-Focus', cost: 5, description: 'Add TD to Int/Wis check' },
-                    { name: 'Physicist', cost: 5, requirements: 'Science', description: 'Increase weapon range 50%' },
                     { name: 'Social Sciences', cost: 5, requirements: 'Culture', description: 'Gain Eureka when losing DP' }
                 ],
                 'Field Hack': [
                     { name: 'Camouflage', cost: 5, requirements: 'Stealth', description: 'Team Stealth advantage' },
-                    { name: 'Camp Security', cost: 5, requirements: 'Perception', description: 'Perception advantage at rest' },
-                    { name: 'Foraging', cost: 5, requirements: 'Survival', description: 'Feed team with Survival' },
-                    { name: 'Hide Tracks', cost: 5, requirements: 'Stealth', description: 'Raise tracking DC' },
-                    { name: 'Ranger Tricks', cost: 5, description: 'Extra traversal cards' },
-                    { name: 'Ration Optimization', cost: 5, description: 'Team heals DP on rest' },
-                    { name: 'Rope Tricks', cost: 5, requirements: 'Stealth', description: 'Team benefits from climbing' },
-                    { name: 'Tracking', cost: 5, requirements: 'Perception', description: 'Advantage on tracking' },
                     { name: 'Xenosurvival', cost: 5, requirements: 'Constitution 13+', description: 'Share Survivalist benefits' }
                 ],
                 'Tactic': [
                     { name: 'Ambush', cost: 5, description: 'Team advantage on first melee' },
-                    { name: 'Assault Coordination', cost: 5, description: 'Next ranged +1d6' },
-                    { name: 'Coordinated Response', cost: 5, description: 'Team uses your initiative' },
-                    { name: 'Defensive Posture', cost: 5, description: 'Allies within 2m +2 AC' },
-                    { name: 'Distracting Attacks', cost: 5, description: 'Target disadvantage vs ally' },
-                    { name: 'Hit and Run', cost: 5, description: 'Ally can Disengage' },
-                    { name: 'Overwatchers', cost: 5, description: '90° overwatch, 2 attacks' },
-                    { name: 'Response Shot', cost: 5, description: 'Reaction attack when ally hit' },
                     { name: 'Rush', cost: 5, description: 'Ally can Dash' }
                 ],
                 'Downtime': [
                     { name: 'Armory Hound', cost: 3, description: 'Weapons start at higher Tech Level' },
-                    { name: 'Artist', cost: 3, description: 'Create art during downtime' },
-                    { name: 'Athlete', cost: 3, description: 'Physical training benefits' },
-                    { name: 'Bookworm', cost: 3, description: 'Gain knowledge through reading' },
-                    { name: 'Cinefile', cost: 3, description: 'Movie knowledge and references' },
-                    { name: 'Cookie', cost: 3, description: 'Cook for team morale' },
-                    { name: 'Gamer', cost: 3, description: 'Gaming skills and tactics' },
-                    { name: 'Party Animal', cost: 3, description: 'Social connections through parties' },
-                    { name: 'Sawbones', cost: 3, description: 'Medical practice during downtime' },
-                    { name: 'Sport Shooter', cost: 3, description: 'Improve shooting during downtime' },
-                    { name: 'Tread Head', cost: 3, description: 'Vehicle maintenance and knowledge' },
                     { name: 'Virtuoso', cost: 3, description: 'Musical performance abilities' }
                 ]
             };
@@ -603,6 +464,18 @@
                 }
                 
                 return true;
+            };
+            
+            // Filter feats based on search query
+            const filterFeats = (feats) => {
+                if (!featSearchQuery.trim()) return feats;
+                
+                const query = featSearchQuery.toLowerCase();
+                return feats.filter(feat => 
+                    feat.name.toLowerCase().includes(query) ||
+                    feat.description.toLowerCase().includes(query) ||
+                    (feat.requirements && feat.requirements.toLowerCase().includes(query))
+                );
             };
             
             // Update derived stats
@@ -781,10 +654,7 @@ ${getAttackBonus()}${npc.attackSpecialization ? ` (${npc.attackSpecialization})`
                         <div className="bg-gray-800/90 backdrop-blur-sm rounded-lg shadow-2xl border border-blue-500/30">
                             {/* Header */}
                             <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-6 rounded-t-lg">
-                                <h1 className="text-3xl font-bold text-white flex items-center gap-3">
-                                    <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
-                                        ⭐
-                                    </div>
+                                <h1 className="text-3xl font-bold text-white">
                                     Stargate RPG NPC Builder
                                 </h1>
                                 <p className="text-blue-100 mt-2">Create NPCs and Beasts for your campaigns</p>
@@ -1034,7 +904,6 @@ ${getAttackBonus()}${npc.attackSpecialization ? ` (${npc.attackSpecialization})`
                                 {npc.cr >= 5 && npc.race !== 'Beast' && (
                                     <div className="bg-gray-700/50 rounded-lg p-4">
                                         <div className="flex items-center gap-2 mb-3">
-                                            <span className="text-yellow-400">🏆</span>
                                             <label className="text-sm font-medium text-gray-300">
                                                 Attack Specialization - {getAttackBonus()}
                                             </label>
@@ -1055,8 +924,8 @@ ${getAttackBonus()}${npc.attackSpecialization ? ` (${npc.attackSpecialization})`
                                 {/* Beast Abilities */}
                                 {npc.race === 'Beast' && (
                                     <div className="bg-yellow-500/10 border-2 border-yellow-500/50 rounded-lg p-4">
-                                        <h3 className="text-lg font-semibold text-yellow-300 mb-3 flex items-center gap-2">
-                                            🐾 Beast Abilities ({npc.beastAbilities.length}/{getMaxBeastAbilities()})
+                                        <h3 className="text-lg font-semibold text-yellow-300 mb-3">
+                                            Beast Abilities ({npc.beastAbilities.length}/{getMaxBeastAbilities()})
                                         </h3>
                                         <p className="text-sm text-gray-400 mb-4">
                                             Select up to {getMaxBeastAbilities()} abilities (half CR, minimum 1)
@@ -1064,16 +933,6 @@ ${getAttackBonus()}${npc.attackSpecialization ? ` (${npc.attackSpecialization})`
                                         
                                         <div className="space-y-2">
                                             {Object.entries(beastAbilitiesByCategory).map(([category, abilities]) => {
-                                                const categoryIcons = {
-                                                    'Movement & Mobility': '🏃',
-                                                    'Senses & Perception': '👁️',
-                                                    'Defense & Resilience': '🛡️',
-                                                    'Offense & Combat': '⚔️',
-                                                    'Environmental Adaptation': '🌍',
-                                                    'Physical Form': '🦴',
-                                                    'Enhancements': '⬆️'
-                                                };
-                                                
                                                 return (
                                                     <div key={category} className="border border-gray-600 rounded-lg overflow-hidden">
                                                         <button
@@ -1084,7 +943,6 @@ ${getAttackBonus()}${npc.attackSpecialization ? ` (${npc.attackSpecialization})`
                                                             className="w-full px-4 py-2 bg-gray-700 hover:bg-gray-600 transition-colors flex items-center justify-between"
                                                         >
                                                             <span className="font-semibold text-sm text-white flex items-center gap-2">
-                                                                <span className="text-lg">{categoryIcons[category]}</span>
                                                                 {category}
                                                                 <span className="text-xs text-gray-400">({abilities.length})</span>
                                                             </span>
@@ -1153,13 +1011,27 @@ ${getAttackBonus()}${npc.attackSpecialization ? ` (${npc.attackSpecialization})`
                                 {/* Feats */}
                                 {npc.race !== 'Beast' && (
                                     <div className="bg-gray-700/50 rounded-lg p-4">
-                                        <h3 className="text-lg font-semibold text-gray-300 mb-3 flex items-center gap-2">
-                                            ✨ Feats Selection
+                                        <h3 className="text-lg font-semibold text-gray-300 mb-3">
+                                            Feats Selection
                                         </h3>
                                         <div className="mb-4 flex justify-between items-center">
                                             <span className="text-sm text-gray-400">
                                                 Mission Points: {getRemainingMP()} MP remaining ({getSpentMP()}/{getMissionPoints()} spent)
                                             </span>
+                                        </div>
+                                        
+                                        {/* Search Bar */}
+                                        <div className="mb-4">
+                                            <div className="relative">
+                                                <Icons.Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                                                <input
+                                                    type="text"
+                                                    value={featSearchQuery}
+                                                    onChange={(e) => setFeatSearchQuery(e.target.value)}
+                                                    placeholder="Search feats by name, description, or requirements..."
+                                                    className="w-full pl-10 pr-4 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:border-blue-500 focus:outline-none"
+                                                />
+                                            </div>
                                         </div>
                                         
                                         {/* Category Tabs */}
@@ -1194,13 +1066,14 @@ ${getAttackBonus()}${npc.attackSpecialization ? ` (${npc.attackSpecialization})`
                                             {selectedFeatCategory === 'Downtime' && 'Abilities that provide benefits during downtime.'}
                                         </div>
                                         
-                                        {/* Available Feats Grid */}
+                                        {/* Available Feats Grid - Made taller */}
                                         <div className="bg-gray-800 rounded-lg p-4 mb-4">
                                             <h4 className="text-sm font-semibold text-gray-300 mb-3">
                                                 {selectedFeatCategory} Feats
+                                                {featSearchQuery && ` (Filtered)`}
                                             </h4>
-                                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 max-h-96 overflow-y-auto">
-                                                {featsByCategory[selectedFeatCategory]?.map(feat => {
+                                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3" style={{ maxHeight: '600px', overflowY: 'auto' }}>
+                                                {filterFeats(featsByCategory[selectedFeatCategory] || []).map(feat => {
                                                     const isSelected = npc.feats.includes(feat.name);
                                                     const canAfford = getRemainingMP() >= feat.cost;
                                                     const meetsRequirements = checkFeatRequirements(feat);
@@ -1246,13 +1119,18 @@ ${getAttackBonus()}${npc.attackSpecialization ? ` (${npc.attackSpecialization})`
                                                         </button>
                                                     );
                                                 })}
+                                                {filterFeats(featsByCategory[selectedFeatCategory] || []).length === 0 && (
+                                                    <div className="col-span-3 text-center text-gray-500 py-4">
+                                                        No feats found matching "{featSearchQuery}"
+                                                    </div>
+                                                )}
                                             </div>
                                         </div>
                                         
-                                        {/* Selected Feats Grid */}
+                                        {/* Selected Feats Grid - Changed to light blue-gray */}
                                         {npc.feats.length > 0 && (
-                                            <div className="bg-purple-500/10 border-2 border-purple-500/30 rounded-lg p-4">
-                                                <h4 className="text-sm font-semibold text-purple-300 mb-3">
+                                            <div className="bg-blue-100/10 border-2 border-blue-300/30 rounded-lg p-4">
+                                                <h4 className="text-sm font-semibold text-blue-300 mb-3">
                                                     Selected Feats ({npc.feats.length})
                                                 </h4>
                                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 max-h-64 overflow-y-auto">
@@ -1268,7 +1146,7 @@ ${getAttackBonus()}${npc.attackSpecialization ? ` (${npc.attackSpecialization})`
                                                         return (
                                                             <div
                                                                 key={featName}
-                                                                className="p-3 rounded-lg border-2 border-purple-500/50 bg-purple-500/20 relative group cursor-pointer hover:bg-purple-500/30 transition-all"
+                                                                className="p-3 rounded-lg border-2 border-blue-200/30 bg-gray-600/50 relative cursor-pointer hover:bg-gray-600/70 transition-all"
                                                                 onClick={() => {
                                                                     setNpc(prev => {
                                                                         const newSelections = { ...prev.featSelections };
@@ -1281,18 +1159,15 @@ ${getAttackBonus()}${npc.attackSpecialization ? ` (${npc.attackSpecialization})`
                                                                     });
                                                                 }}
                                                             >
-                                                                <button className="absolute top-2 right-2 w-6 h-6 bg-red-500/20 hover:bg-red-500/40 rounded-full flex items-center justify-center text-red-300 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                                    ×
-                                                                </button>
                                                                 <div className="flex justify-between items-start mb-2">
-                                                                    <span className="font-semibold text-sm text-white flex-1 pr-8">{feat.name}</span>
-                                                                    <span className="text-xs px-2 py-1 bg-purple-600/30 text-purple-300 rounded">
+                                                                    <span className="font-semibold text-sm text-white flex-1">{feat.name}</span>
+                                                                    <span className="text-xs px-2 py-1 bg-blue-600/30 text-blue-300 rounded">
                                                                         {feat.cost} MP
                                                                     </span>
                                                                 </div>
                                                                 <div className="text-xs text-gray-300 line-clamp-2 mb-2">{feat.description}</div>
                                                                 {renderSelection(feat.name)}
-                                                                <div className="text-xs text-purple-400 mt-2">Click to remove</div>
+                                                                <div className="text-xs text-blue-400 mt-2">Click to remove</div>
                                                             </div>
                                                         );
                                                     })}
