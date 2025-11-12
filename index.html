@@ -176,6 +176,8 @@
             const [expandedBeastCategories, setExpandedBeastCategories] = useState({});
             const [selectedFeatCategory, setSelectedFeatCategory] = useState('General');
             const [featSearchQuery, setFeatSearchQuery] = useState('');
+            const [selectedBeastCategory, setSelectedBeastCategory] = useState('Movement & Mobility');
+            const [beastAbilitySearchQuery, setBeastAbilitySearchQuery] = useState('');
             
             // Define all constant arrays
             const races = ['Beast', 'Human', 'Jaffa', 'NPC Race'];
@@ -617,12 +619,22 @@ const featsByCategory = {
             // Filter feats based on search query
             const filterFeats = (feats) => {
                 if (!featSearchQuery.trim()) return feats;
-                
+
                 const query = featSearchQuery.toLowerCase();
-                return feats.filter(feat => 
+                return feats.filter(feat =>
                     feat.name.toLowerCase().includes(query) ||
                     feat.description.toLowerCase().includes(query) ||
                     (feat.requirements && feat.requirements.toLowerCase().includes(query))
+                );
+            };
+
+            const filterBeastAbilities = (abilities) => {
+                if (!beastAbilitySearchQuery.trim()) return abilities;
+
+                const query = beastAbilitySearchQuery.toLowerCase();
+                return abilities.filter(ability =>
+                    ability.name.toLowerCase().includes(query) ||
+                    ability.description.toLowerCase().includes(query)
                 );
             };
             
@@ -992,86 +1004,124 @@ ${getAttackBonus()}${npc.attackSpecialization ? ` (${npc.attackSpecialization})`
                                     </div>
                                 )}
                                 
-                                {/* Ability Scores */}
+                                {/* Ability Scores and Bonus Attributes - Compact Two Column Style */}
                                 <div className="bg-gray-700/50 rounded-lg p-4">
-                                    <div className="flex justify-between items-center mb-4">
+                                    {/* Ability Scores Header with Progress Bar */}
+                                    <div className="flex justify-between items-center mb-4 pb-3 border-b border-gray-600">
                                         <label className="text-sm font-medium text-gray-300">
-                                            Ability Scores (Point Buy) - Base Values
+                                            Ability Scores
                                         </label>
-                                        <span className={`text-sm px-3 py-1 rounded-full ${
-                                            getPointsSpent() > 27 ? 'bg-red-500/20 text-red-300' : 'bg-green-500/20 text-green-300'
-                                        }`}>
-                                            Points: {getPointsSpent()}/27
-                                        </span>
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-64 bg-gray-800 rounded-full h-5 overflow-hidden">
+                                                <div
+                                                    className={`h-full transition-all ${
+                                                        getPointsSpent() > 27 ? 'bg-red-500' : 'bg-green-500'
+                                                    }`}
+                                                    style={{ width: `${Math.min((getPointsSpent() / 27) * 100, 100)}%` }}
+                                                ></div>
+                                            </div>
+                                            <span className={`text-base font-medium ${
+                                                getPointsSpent() > 27 ? 'text-red-300' : 'text-green-300'
+                                            }`}>
+                                                {getPointsSpent()}/27
+                                            </span>
+                                        </div>
                                     </div>
-                                    
-                                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+
+                                    {/* Column Headers */}
+                                    <div className="grid md:grid-cols-2 gap-3 mb-2">
+                                        <div className="flex items-center gap-3 px-4">
+                                            <span className="w-24 flex-shrink-0"></span>
+                                            <span className="w-7 flex-shrink-0"></span>
+                                            <span className="w-14 text-center text-xs text-gray-400 flex-shrink-0">Base</span>
+                                            <span className="w-7 flex-shrink-0"></span>
+                                            <span className="w-14 text-center text-xs text-gray-400 flex-shrink-0">Bonus</span>
+                                            <span className="w-3 flex-shrink-0"></span>
+                                            <span className="w-14 text-center text-xs text-gray-400 flex-shrink-0">Total</span>
+                                        </div>
+                                        <div className="flex items-center gap-3 px-4">
+                                            <span className="w-24 flex-shrink-0"></span>
+                                            <span className="w-7 flex-shrink-0"></span>
+                                            <span className="w-14 text-center text-xs text-gray-400 flex-shrink-0">Base</span>
+                                            <span className="w-7 flex-shrink-0"></span>
+                                            <span className="w-14 text-center text-xs text-gray-400 flex-shrink-0">Bonus</span>
+                                            <span className="w-3 flex-shrink-0"></span>
+                                            <span className="w-14 text-center text-xs text-gray-400 flex-shrink-0">Total</span>
+                                        </div>
+                                    </div>
+
+                                    {/* Ability Scores Grid - Two Columns */}
+                                    <div className="grid md:grid-cols-2 gap-3">
                                         {Object.entries(npc.abilityScores).map(([ability, score]) => {
                                             const bonus = parseInt(npc.bonusAttributes[ability]) || 0;
                                             const finalScore = score + bonus;
-                                            
+
                                             return (
-                                                <div key={ability} className="bg-gray-800 rounded-lg p-3">
-                                                    <div className="flex justify-between items-center mb-2">
-                                                        <span className="text-xs text-gray-400 capitalize">{ability}</span>
-                                                        <span className="text-xs text-blue-300">
-                                                            Final: {finalScore} ({getModifier(finalScore) >= 0 ? '+' : ''}{getModifier(finalScore)})
-                                                        </span>
+                                                <div key={ability} className="flex items-center gap-3 bg-gray-800 rounded px-4 py-2 min-w-0">
+                                                    <span className="text-sm text-gray-300 uppercase w-24 flex-shrink-0">{ability}</span>
+
+                                                    <button
+                                                        onClick={() => updateAbilityScore(ability, score - 1)}
+                                                        className="w-7 h-7 bg-gray-700 hover:bg-gray-600 rounded text-white text-sm flex items-center justify-center flex-shrink-0"
+                                                        disabled={score <= 8}
+                                                    >
+                                                        -
+                                                    </button>
+
+                                                    <div className="w-14 h-7 bg-gray-900 rounded flex items-center justify-center flex-shrink-0">
+                                                        <span className="text-base font-semibold text-white">{score}</span>
                                                     </div>
-                                                    <div className="flex items-center gap-2">
-                                                        <button
-                                                            onClick={() => updateAbilityScore(ability, score - 1)}
-                                                            className="w-8 h-8 bg-gray-700 hover:bg-gray-600 rounded text-white"
-                                                            disabled={score <= 8}
-                                                        >
-                                                            -
-                                                        </button>
-                                                        <div className="flex-1 text-center">
-                                                            <div className="text-lg font-bold text-white">{score}</div>
-                                                            {bonus !== 0 && (
-                                                                <div className="text-xs text-green-400">+{bonus}</div>
-                                                            )}
-                                                        </div>
-                                                        <button
-                                                            onClick={() => updateAbilityScore(ability, score + 1)}
-                                                            className="w-8 h-8 bg-gray-700 hover:bg-gray-600 rounded text-white"
-                                                            disabled={score >= 15 || getPointsSpent() >= 27}
-                                                        >
-                                                            +
-                                                        </button>
+
+                                                    <button
+                                                        onClick={() => updateAbilityScore(ability, score + 1)}
+                                                        className="w-7 h-7 bg-gray-700 hover:bg-gray-600 rounded text-white text-sm flex items-center justify-center flex-shrink-0"
+                                                        disabled={score >= 15 || getPointsSpent() >= 27}
+                                                    >
+                                                        +
+                                                    </button>
+
+                                                    <input
+                                                        type="number"
+                                                        value={npc.bonusAttributes[ability]}
+                                                        onChange={(e) => setNpc(prev => ({
+                                                            ...prev,
+                                                            bonusAttributes: {
+                                                                ...prev.bonusAttributes,
+                                                                [ability]: e.target.value
+                                                            }
+                                                        }))}
+                                                        placeholder="0"
+                                                        className="w-14 h-7 px-2 bg-blue-900/30 border-2 border-blue-500/50 hover:border-blue-400 focus:border-blue-400 focus:outline-none rounded text-white text-sm text-center flex-shrink-0 transition-colors"
+                                                        min="-5"
+                                                        max="10"
+                                                    />
+
+                                                    <span className="text-sm text-gray-400 flex-shrink-0 w-3 text-center">=</span>
+
+                                                    <div className="w-14 h-8 bg-blue-500/20 rounded flex items-center justify-center flex-shrink-0">
+                                                        <span className="text-lg font-bold text-blue-300">{finalScore}</span>
+                                                    </div>
+
+                                                    <div className={`w-16 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
+                                                        getModifier(finalScore) > 0
+                                                            ? 'bg-green-500/30 border-2 border-green-500'
+                                                            : getModifier(finalScore) < 0
+                                                            ? 'bg-red-500/30 border-2 border-red-500'
+                                                            : 'bg-gray-600/30 border-2 border-gray-500'
+                                                    }`}>
+                                                        <span className={`text-base font-bold ${
+                                                            getModifier(finalScore) > 0
+                                                                ? 'text-green-300'
+                                                                : getModifier(finalScore) < 0
+                                                                ? 'text-red-300'
+                                                                : 'text-gray-300'
+                                                        }`}>
+                                                            {getModifier(finalScore) >= 0 ? '+' : ''}{getModifier(finalScore)}
+                                                        </span>
                                                     </div>
                                                 </div>
                                             );
                                         })}
-                                    </div>
-                                </div>
-                                
-                                {/* Bonus Attributes */}
-                                <div className="bg-gray-700/50 rounded-lg p-4">
-                                    <label className="text-sm font-medium text-gray-300 mb-2">
-                                        Bonus Attributes (Optional)
-                                    </label>
-                                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                                        {Object.entries(npc.bonusAttributes).map(([ability, bonus]) => (
-                                            <div key={ability} className="flex items-center gap-2">
-                                                <span className="text-xs text-gray-400 capitalize w-20">{ability}:</span>
-                                                <input
-                                                    type="number"
-                                                    value={bonus}
-                                                    onChange={(e) => setNpc(prev => ({
-                                                        ...prev,
-                                                        bonusAttributes: {
-                                                            ...prev.bonusAttributes,
-                                                            [ability]: e.target.value
-                                                        }
-                                                    }))}
-                                                    placeholder=""
-                                                    className="w-20 px-2 py-1 bg-gray-800 border border-gray-600 rounded text-white text-sm"
-                                                    min="-5"
-                                                    max="10"
-                                                />
-                                            </div>
-                                        ))}
                                     </div>
                                 </div>
                                 
@@ -1144,88 +1194,151 @@ ${getAttackBonus()}${npc.attackSpecialization ? ` (${npc.attackSpecialization})`
                                 
                                 {/* Beast Abilities */}
                                 {npc.race === 'Beast' && (
-                                    <div className="bg-yellow-500/10 border-2 border-yellow-500/50 rounded-lg p-4">
-                                        <h3 className="text-lg font-semibold text-yellow-300 mb-3">
-                                            Beast Abilities ({npc.beastAbilities.length}/{getMaxBeastAbilities()})
+                                    <div className="bg-gray-700/50 rounded-lg p-4">
+                                        <h3 className="text-lg font-semibold text-gray-300 mb-3">
+                                            Beast Abilities Selection
                                         </h3>
-                                        <p className="text-sm text-gray-400 mb-4">
-                                            Select up to {getMaxBeastAbilities()} abilities (half CR, minimum 1)
-                                        </p>
-                                        
-                                        <div className="space-y-2">
-                                            {Object.entries(beastAbilitiesByCategory).map(([category, abilities]) => {
-                                                return (
-                                                    <div key={category} className="border border-gray-600 rounded-lg overflow-hidden">
-                                                        <button
-                                                            onClick={() => setExpandedBeastCategories(prev => ({
-                                                                ...prev,
-                                                                [category]: !prev[category]
-                                                            }))}
-                                                            className="w-full px-4 py-2 bg-gray-700 hover:bg-gray-600 transition-colors flex items-center justify-between"
-                                                        >
-                                                            <span className="font-semibold text-sm text-white flex items-center gap-2">
-                                                                {category}
-                                                                <span className="text-xs text-gray-400">({abilities.length})</span>
-                                                            </span>
-                                                            <Icons.ChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${
-                                                                expandedBeastCategories[category] ? 'rotate-180' : ''
-                                                            }`} />
-                                                        </button>
-                                                        
-                                                        {expandedBeastCategories[category] && (
-                                                            <div className="p-2 bg-gray-800 grid grid-cols-1 md:grid-cols-2 gap-2">
-                                                                {abilities.map(ability => {
-                                                                    const isSelected = npc.beastAbilities.includes(ability.name);
-                                                                    const maxReached = npc.beastAbilities.length >= getMaxBeastAbilities();
-                                                                    
-                                                                    return (
-                                                                        <button
-                                                                            key={ability.name}
-                                                                            onClick={() => {
-                                                                                setNpc(prev => {
-                                                                                    if (isSelected) {
-                                                                                        const newSelections = { ...prev.beastAbilitySelections };
-                                                                                        delete newSelections[ability.name];
-                                                                                        return {
-                                                                                            ...prev,
-                                                                                            beastAbilities: prev.beastAbilities.filter(a => a !== ability.name),
-                                                                                            beastAbilitySelections: newSelections
-                                                                                        };
-                                                                                    } else if (!maxReached) {
-                                                                                        return {
-                                                                                            ...prev,
-                                                                                            beastAbilities: [...prev.beastAbilities, ability.name]
-                                                                                        };
-                                                                                    }
-                                                                                    return prev;
-                                                                                });
-                                                                            }}
-                                                                            disabled={!isSelected && maxReached}
-                                                                            className={`p-3 text-left rounded border transition-all ${
-                                                                                isSelected
-                                                                                    ? 'border-yellow-500 bg-yellow-500/20'
-                                                                                    : 'border-gray-600 bg-gray-700 hover:border-gray-500 disabled:opacity-50'
-                                                                            }`}
-                                                                        >
-                                                                            <div className="flex justify-between items-start">
-                                                                                <div className="flex-1">
-                                                                                    <div className="font-semibold text-sm text-white">{ability.name}</div>
-                                                                                    <div className="text-xs text-gray-400 mt-1">{ability.description}</div>
-                                                                                    {isSelected && renderSelection(ability.name, true)}
-                                                                                </div>
-                                                                                {isSelected && (
-                                                                                    <div className="ml-2 text-yellow-400">✓</div>
-                                                                                )}
-                                                                            </div>
-                                                                        </button>
-                                                                    );
-                                                                })}
-                                                            </div>
-                                                        )}
-                                                    </div>
-                                                );
-                                            })}
+                                        <div className="mb-4 flex justify-between items-center">
+                                            <span className="text-sm text-gray-400">
+                                                {npc.beastAbilities.length}/{getMaxBeastAbilities()} abilities selected (half CR, minimum 1)
+                                            </span>
                                         </div>
+
+                                        {/* Search Bar */}
+                                        <div className="mb-4">
+                                            <div className="relative inline-block" style={{ width: '280px' }}>
+                                                <input
+                                                    type="text"
+                                                    value={beastAbilitySearchQuery}
+                                                    onChange={(e) => setBeastAbilitySearchQuery(e.target.value)}
+                                                    placeholder="Search abilities..."
+                                                    className="w-full px-4 py-2 pr-10 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:border-yellow-500 focus:outline-none"
+                                                />
+                                                {beastAbilitySearchQuery && (
+                                                    <button
+                                                        onClick={() => setBeastAbilitySearchQuery('')}
+                                                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
+                                                    >
+                                                        ✕
+                                                    </button>
+                                                )}
+                                            </div>
+                                        </div>
+
+                                        {/* Category Tabs */}
+                                        <div className="flex flex-wrap gap-2 mb-4">
+                                            {Object.keys(beastAbilitiesByCategory).map(category => (
+                                                <button
+                                                    key={category}
+                                                    onClick={() => setSelectedBeastCategory(category)}
+                                                    className={`px-4 py-2 rounded-lg font-medium text-sm transition-all ${
+                                                        selectedBeastCategory === category
+                                                            ? 'bg-yellow-600 text-white shadow-lg'
+                                                            : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                                                    }`}
+                                                >
+                                                    {category}
+                                                </button>
+                                            ))}
+                                        </div>
+
+                                        {/* Available Beast Abilities Grid */}
+                                        <div className="bg-gray-800 rounded-lg p-4 mb-4">
+                                            <h4 className="text-sm font-semibold text-gray-300 mb-3">
+                                                {beastAbilitySearchQuery ? 'All Categories (Filtered)' : `${selectedBeastCategory} Abilities`}
+                                            </h4>
+                                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3" style={{ maxHeight: '600px', overflowY: 'auto' }}>
+                                                {filterBeastAbilities(
+                                                    beastAbilitySearchQuery
+                                                        ? Object.values(beastAbilitiesByCategory).flat()
+                                                        : (beastAbilitiesByCategory[selectedBeastCategory] || [])
+                                                ).map(ability => {
+                                                    const isSelected = npc.beastAbilities.includes(ability.name);
+                                                    const maxReached = npc.beastAbilities.length >= getMaxBeastAbilities();
+                                                    const canSelect = !isSelected && !maxReached;
+
+                                                    return (
+                                                        <button
+                                                            key={ability.name}
+                                                            onClick={() => {
+                                                                if (!isSelected && canSelect) {
+                                                                    setNpc(prev => ({
+                                                                        ...prev,
+                                                                        beastAbilities: [...prev.beastAbilities, ability.name]
+                                                                    }));
+                                                                }
+                                                            }}
+                                                            disabled={isSelected || !canSelect}
+                                                            className={`p-3 rounded-lg border-2 transition-all text-left ${
+                                                                isSelected
+                                                                    ? 'border-gray-600 bg-gray-700/50 opacity-50'
+                                                                    : canSelect
+                                                                    ? 'border-gray-600 bg-gray-700 hover:border-yellow-500 hover:bg-yellow-500/10 cursor-pointer'
+                                                                    : 'border-gray-700 bg-gray-800/50 opacity-40 cursor-not-allowed'
+                                                            }`}
+                                                        >
+                                                            <div className="flex justify-between items-start mb-2">
+                                                                <span className="font-semibold text-sm text-white flex-1">{ability.name}</span>
+                                                            </div>
+                                                            <div className="text-xs text-gray-400 line-clamp-2">{ability.description}</div>
+                                                            {isSelected && (
+                                                                <div className="text-xs text-gray-500 mt-2">Already Selected</div>
+                                                            )}
+                                                        </button>
+                                                    );
+                                                })}
+                                                {filterBeastAbilities(beastAbilitiesByCategory[selectedBeastCategory] || []).length === 0 && (
+                                                    <div className="col-span-3 text-center text-gray-500 py-4">
+                                                        No abilities found matching "{beastAbilitySearchQuery}"
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+
+                                        {/* Selected Beast Abilities Grid */}
+                                        {npc.beastAbilities.length > 0 && (
+                                            <div className="bg-blue-500/20 border-2 border-blue-500/40 rounded-lg p-4">
+                                                <h4 className="text-sm font-semibold text-blue-300 mb-3">
+                                                    Selected Beast Abilities ({npc.beastAbilities.length})
+                                                </h4>
+                                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 max-h-64 overflow-y-auto">
+                                                    {npc.beastAbilities.map(abilityName => {
+                                                        let ability = null;
+                                                        for (const category of Object.values(beastAbilitiesByCategory)) {
+                                                            ability = category.find(a => a.name === abilityName);
+                                                            if (ability) break;
+                                                        }
+
+                                                        if (!ability) return null;
+
+                                                        return (
+                                                            <div
+                                                                key={abilityName}
+                                                                className="p-3 rounded-lg border-2 border-blue-400/40 bg-blue-500/30 relative cursor-pointer hover:bg-blue-500/40 transition-all"
+                                                                onClick={() => {
+                                                                    setNpc(prev => {
+                                                                        const newSelections = { ...prev.beastAbilitySelections };
+                                                                        delete newSelections[abilityName];
+                                                                        return {
+                                                                            ...prev,
+                                                                            beastAbilities: prev.beastAbilities.filter(a => a !== abilityName),
+                                                                            beastAbilitySelections: newSelections
+                                                                        };
+                                                                    });
+                                                                }}
+                                                            >
+                                                                <div className="flex justify-between items-start mb-2">
+                                                                    <span className="font-semibold text-sm text-white flex-1">{ability.name}</span>
+                                                                </div>
+                                                                <div className="text-xs text-gray-200 line-clamp-2 mb-2">{ability.description}</div>
+                                                                {renderSelection(ability.name, true)}
+                                                                <div className="text-xs text-blue-200 mt-2">Click to remove</div>
+                                                            </div>
+                                                        );
+                                                    })}
+                                                </div>
+                                            </div>
+                                        )}
                                     </div>
                                 )}
                                 
@@ -1243,13 +1356,23 @@ ${getAttackBonus()}${npc.attackSpecialization ? ` (${npc.attackSpecialization})`
                                         
                                         {/* Search Bar */}
                                         <div className="mb-4">
-                                            <input
-                                                type="text"
-                                                value={featSearchQuery}
-                                                onChange={(e) => setFeatSearchQuery(e.target.value)}
-                                                placeholder="Search feats by name, description, or requirements..."
-                                                className="w-full px-4 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:border-blue-500 focus:outline-none"
-                                            />
+                                            <div className="relative inline-block" style={{ width: '280px' }}>
+                                                <input
+                                                    type="text"
+                                                    value={featSearchQuery}
+                                                    onChange={(e) => setFeatSearchQuery(e.target.value)}
+                                                    placeholder="Search feats..."
+                                                    className="w-full px-4 py-2 pr-10 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:border-purple-500 focus:outline-none"
+                                                />
+                                                {featSearchQuery && (
+                                                    <button
+                                                        onClick={() => setFeatSearchQuery('')}
+                                                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
+                                                    >
+                                                        ✕
+                                                    </button>
+                                                )}
+                                            </div>
                                         </div>
                                         
                                         {/* Category Tabs */}
@@ -1287,11 +1410,14 @@ ${getAttackBonus()}${npc.attackSpecialization ? ` (${npc.attackSpecialization})`
                                         {/* Available Feats Grid - Made taller */}
                                         <div className="bg-gray-800 rounded-lg p-4 mb-4">
                                             <h4 className="text-sm font-semibold text-gray-300 mb-3">
-                                                {selectedFeatCategory} Feats
-                                                {featSearchQuery && ` (Filtered)`}
+                                                {featSearchQuery ? 'All Categories (Filtered)' : `${selectedFeatCategory} Feats`}
                                             </h4>
                                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3" style={{ maxHeight: '600px', overflowY: 'auto' }}>
-                                                {filterFeats(featsByCategory[selectedFeatCategory] || []).map(feat => {
+                                                {filterFeats(
+                                                    featSearchQuery
+                                                        ? Object.values(featsByCategory).flat()
+                                                        : (featsByCategory[selectedFeatCategory] || [])
+                                                ).map(feat => {
                                                     const isSelected = npc.feats.includes(feat.name);
                                                     const canAfford = getRemainingMP() >= feat.cost;
                                                     const meetsRequirements = checkFeatRequirements(feat);
