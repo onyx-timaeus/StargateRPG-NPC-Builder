@@ -181,17 +181,16 @@
             // Define all constant arrays
             const races = ['Beast', 'Human', 'Jaffa', 'NPC Race'];
             
-            const beastTypes = [
-                { name: 'Predator', description: 'Hunting carnivore with natural weapons' },
-                { name: 'Prey', description: 'Herbivore with speed and senses' },
-                { name: 'Pack Hunter', description: 'Cooperative predator with tactics' },
-                { name: 'Ambush Predator', description: 'Stealth hunter with powerful first strike' },
-                { name: 'Flying', description: 'Aerial creature with flight capability' },
-                { name: 'Aquatic', description: 'Water-dwelling creature with swimming' },
-                { name: 'Insectoid', description: 'Chitinous creature with multiple limbs' },
-                { name: 'Reptilian', description: 'Scaled creature, often with natural armor' }
-            ];
-            
+const beastTypes = [
+    { name: 'Amphibious', description: 'The creature can breathe both air and water. The creature has one bite attack. In addition it has a swim speed of 6m and is proficient in the Athletics and Stealth skills.' },
+    { name: 'Aquatic', description: 'The creature can breathe water but not air, gains a swim speed of 6m, and loses its land speed. The creature has one bite attack. In addition, it is proficient in the Athletics and Perception skills.' },
+    { name: 'Avian', description: 'The creature gains a flight speed of 6m and lowers its land speed to 1m. The creature has one beak or two claw attacks. In addition, it is proficient in the Acrobatics and Perception skills.' },
+    { name: 'Biped', description: 'The creature gains a climb speed of 3m. It has one slam or bite attack (or 2 claws if appropriate). In addition, it is proficient in the Athletics, Perception, and Survival skills.' },
+    { name: 'Crustacean', description: 'The creature boasts external armor, increasing its AC by +4. The creature has two claw attacks. In addition, it is proficient in the Stealth skill.' },
+    { name: 'Insect', description: 'The creature gains a climb speed of 6m. The creature has one bite attack or one sting attack (your choice). In addition, it is proficient in the Acrobatics and Stealth skills.' },
+    { name: 'Quadruped', description: 'The creature\'s base move speed increases to 9m. It has either two hoof attacks, 2 claw attacks, or 1 bite attack, depending on the beast\'s anatomy. In addition, it is proficient in the Athletics (or Acrobatics if appropriate) and Survival skills.' },
+    { name: 'Serpentine', description: 'The creature gains a climb and swim speed of 3m. It has one bite attack. In addition, it is proficient in the Stealth and Survival skills.' }
+];
             const selectionOptions = {
                 attributes: ['Strength', 'Dexterity', 'Constitution', 'Intelligence', 'Wisdom', 'Charisma'],
                 environments: ['Forest', 'Plains', 'Desert', 'Arctic', 'Underwater', 'Mountains', 'Urban', 'Swamp', 'Cave'],
@@ -201,125 +200,274 @@
                 combatSkills: ['Acrobatics', 'Athletics', 'Intimidation', 'Perception', 'Stealth', 'Survival']
             };
 
-            const beastAbilitiesByCategory = {
+const beastAbilitiesByCategory = {
   "Movement & Mobility": [
     { name: "Climb", description: "The beast gains a climb speed of 3m. This ability may be taken a second time, increasing the climb speed to 6m." },
-    { name: "Extra Legs", description: "The beast's land speed increases by +1m and it has advantage on checks and saves to resist being knocked prone." },
-    { name: "Fast", description: "Increase one of the beast's movement speeds by +3m." },
+    { name: "Extra Legs", description: "The beast's land speed is increased by 1m and the beast gains advantage on any check to resist being knocked prone." },
+    { name: "Fast", description: "The beast improves one movement speed of your choice by +3m." },
     { name: "Flight", description: "The beast gains a fly speed of 6m." },
-    { name: "Flightless", description: "The beast loses its fly speed (if it had one) but takes only half damage from falling." },
-    { name: "Lumbering", description: "All the beast's movement speeds are reduced by 3m, but it gains bonus hit points equal to twice its CR." },
-    { name: "Move By", description: "The beast does not provoke opportunity attacks when moving out of an enemy's reach." },
-    { name: "Spider Climb", description: "The beast can climb difficult surfaces, including upside down on ceilings, without needing to make checks." },
-    { name: "Standing Leap", description: "The beast is always treated as having moved at least 2m when making a running jump." },
+    { name: "Flightless", description: "The beast loses its fly speed (and regains its land speed) but takes half damage from falling. This ability can only be taken by creatures with a fly speed." },
+    { name: "Lumbering", description: "The beast move speeds are reduced by 3m, but it gains bonus HP equal to twice the creature's CR." },
+    { name: "Move By", description: "The beast doesn't provoke opportunity attacks when it moves out of an enemy's reach." },
+    { name: "Spider Climb", description: "The beast can climb difficult surfaces, including upside down on ceilings, without needing to make an ability check." },
+    { name: "Standing Leap", description: "The beast is always treated as having moved 2m when making a leap." },
     { name: "Swimmer", description: "The beast gains a swim speed of 3m. This ability may be taken a second time, increasing the swim speed to 6m." }
   ],
   "Senses & Perception": [
-    { name: "Bioluminescent", description: "The beast emits bright light in a 2m radius and dim light for an additional 2m." },
-    { name: "Blindsight", description: "The beast gains blindsight out to 3m. This ability may be taken a second time to increase blindsight to 6m." },
-    { name: "Darkvision", description: "The beast gains darkvision out to 6m. This ability may be taken a second time to increase darkvision to 12m." },
-    { name: "Echolocation", description: "The beast gains blindsight out to 6m or doubles any existing blindsight. It cannot use this sense while deafened." },
-    { name: "Keen Sense", needsSelection: "sense", description: "Choose one sense (such as sight, hearing, or smell). The beast has advantage on Perception checks using that sense." }
+    { name: "Bioluminescent", description: "The beast sheds bright light in a 2m radius and sheds dim light for an additional 2m." },
+    { name: "Blindsight", description: "The beast gains blindsight 3m. This ability may be taken a second time, increasing the blindsight to 6m." },
+    { name: "Darkvision", description: "The beast gains Darkvision 6m. This ability may be taken a second time, increasing the darkvision to 12m." },
+    { name: "Echolocation", description: "The beast gains blindsight 6m or doubles its existing blindsight. It can't use its blindsight while deafened." },
+    { name: "Keen Sense", needsSelection: "sense", description: "Choose one sense. The beast gains advantage on Perception checks that rely on the chosen sense. This ability may be chosen multiple times, selecting a different sense each time." }
   ],
   "Defense & Resilience": [
-    { name: "Armored", description: "The beast's AC increases by +2. This ability may be taken multiple times, and the bonuses stack." },
-    { name: "Crystalline", description: "The beast's body is composed of crystal or stone. It has resistance to slashing and piercing damage but vulnerability to bludgeoning damage." },
-    { name: "Relentless", description: "Once per short or long rest, when the beast would be reduced to 0 HP, it instead drops to 1 HP." },
-    { name: "Sure-Footed", description: "The beast has advantage on Strength and Dexterity saves against effects that would knock it prone." },
-    { name: "Tough", description: "The beast gains bonus hit points equal to its CR. This ability may be taken multiple times, and the bonuses stack." }
+    { name: "Armored", description: "The creature's AC is increased by +2. This ability may be taken multiple times and the effects stack. Despite its name, this AC bonus might also represent skilled dodging." },
+    { name: "Crystalline", description: "The beast is made of inorganic material, but is nevertheless a beast in all other regards. It gains resistance to slashing and piercing damage and vulnerability to bludgeoning damage." },
+    { name: "Relentless", description: "If this beast takes damage that would reduce it to 0 hit points, it is reduced to 1 hit point instead. This ability may only be used once per short or long rest." },
+    { name: "Sure-Footed", description: "The beast has advantage on Strength and Dexterity saving throws made against effects that would knock it prone." },
+    { name: "Tough", description: "The beast gains additional HP equal to its final CR. The beast may take this ability multiple times." }
   ],
   "Offense & Combat": [
-    { name: "Blood Frenzy", description: "The beast has advantage on melee attack rolls against targets that are injured (at or below half HP)." },
-    { name: "Charge", description: "If the beast moves at least 4m straight toward a target and then hits it, it deals extra damage equal to one of its natural attack dice and forces a Strength save (DC 10) or the target is knocked prone." },
-    { name: "Constrict", description: "When the beast successfully grapples a target, it automatically deals damage equal to one of its natural attacks at the end of each of the target's turns until it escapes." },
-    { name: "Multiattack", description: "The beast can attack once with each of its natural weapons when it takes the Attack action (requires multiple natural weapons)." },
-    { name: "Natural Weapon", description: "The beast gains an additional natural attack (such as a bite, claw, or gore). This ability may be taken multiple times." },
-    { name: "Pack Tactics", description: "The beast has advantage on attack rolls against a target if an ally is within 1.5m of the target and not incapacitated." },
-    { name: "Pounce", description: "If the beast moves at least 6m (20ft) straight toward a creature and hits it with a melee attack, the target must succeed on a Strength save (DC 5 + CR) or be knocked prone." },
-    { name: "Powerful Attack", description: "Choose one of the beast's natural attacks. Its damage die increases to the next size (e.g., 1d8 → 1d10). This ability may be taken multiple times." },
-    { name: "Superior Natural Attacks", description: "The beast's natural weapons count as having a Tech Level equal to one-fourth its CR (minimum TL 1)." },
-    { name: "Venomous", description: "Choose one of the beast's natural attacks. On a hit, the target must succeed on a Constitution save (DC 10 + CR) or be poisoned. At the start of each of its turns, the poisoned target takes poison damage that scales with CR (1–4 TD). The save can be repeated at the start of each turn." },
-    { name: "Webbing", description: "The beast can entangle targets in webs as a ranged or melee attack. On a hit, the target must succeed on a Dexterity save (DC 10) or be restrained for 1d4 rounds. While in contact with a web, the beast knows the exact location of any creature touching it. The beast ignores movement restrictions caused by webs." }
+    { name: "Blood Frenzy", description: "The beast has advantage on melee attack rolls against any target that is injured (half or fewer HP)." },
+    { name: "Charge", description: "If the beast moves at least 4m straight toward a target and then hits it with an attack on the same turn, the target takes additional bludgeoning damage equal to the creature's natural attack damage die (per final CR). The target must succeed on a DC 10 Strength saving throw or be knocked prone." },
+    { name: "Constrict", description: "This creature is an expert grappler capable of squeezing its foes. When this creature makes a successful grapple attack, it deals its natural attack damage. Any target that does not escape this creature's grapple by the end of its turn suffers this creature's natural attack damage." },
+    { name: "Multiattack", description: "The beast can make an attack with each of its natural weapons when it attacks. A beast must have multiple natural attacks to take this ability." },
+    { name: "Natural Weapon", description: "The beast gains an additional natural attack of your choice. This ability may be taken multiple times." },
+    { name: "Pack Tactics", description: "The beast has advantage on an attack roll against a creature if at least one ally is within 5 feet of the creature and the ally isn't incapacitated." },
+    { name: "Pounce", description: "If the beast moves at least 20 feet straight toward a creature and then hits it with its first attack on the same turn, that target must succeed on a Strength saving throw (DC 5 + creature CR) or be knocked prone." },
+    { name: "Powerful Attack", description: "Choose one of the beast's attacks. The attack's damage increases to the next highest damage value on the beast attributes table. For instance, a CR 11 creature would have a die type of 2d6 (instead of 1d10). This ability may be taken multiple times and its effects stack." },
+    { name: "Superior Natural Attacks", description: "The beast's natural attacks have a tech level equal to one fourth of the creature's CR (rounded down, minimum 1), instead of being TL 0." },
+    { name: "Venomous", description: "Choose one of the beast's bite, claw, or sting attacks to also apply the poison condition to the target. At the beginning of each of the poisoned character's turns, they must pass a Constitution save (DC 10 + the creature's CR) to remove the condition. If they fail, they suffer TD poison damage. This damage is increased to 2 TD damage at CR 6, 3 TD damage at CR 11, and 4 TD damage at CR 17." },
+    { name: "Webbing", description: "The beast may entangle its targets in a web as a ranged or melee attack. If the attack hits, the target must pass a DC 10 Dexterity save or become restrained for 1d4 rounds. While in contact with a web, the beast knows the exact location of any other creature in contact with the same web. The beast ignores movement restrictions caused by webbing." }
   ],
   "Environmental Adaptation": [
-    { name: "Amphibious Breath", description: "The beast can breathe both air and water." },
-    { name: "Camouflage", needsSelection: "environment", description: "Choose an environment (forest, plains, underwater, etc.). The beast has advantage on Stealth checks made in that environment." },
-    { name: "Hold Breath", description: "The beast can hold its breath for up to 30 minutes." }
+    { name: "Amphibious Breath", description: "The creature may breathe both air and water." },
+    { name: "Camouflage", needsSelection: "environment", description: "Choose a natural environment (such as Forest, Plains, or Underwater). The beast has advantage on Stealth checks made while within the environment." },
+    { name: "Hold Breath", description: "The beast can hold its breath for 30 minutes." }
   ],
   "Physical Form": [
-    { name: "Apex Predator", description: "The beast is a solitary, apex threat. Its hit points are doubled. It cannot benefit from other HP-increasing effects. Selecting this ability increases its CR by +1." },
-    { name: "Beast of Burden", description: "The beast's carrying capacity is doubled (push, pull, lift, carry)." },
-    { name: "Larger", description: "The beast increases by one size category. Its Strength increases by +2, Dexterity decreases by –2, and AC decreases by 1. Its natural attack damage scales as if it were 2 CR higher. This ability may be taken multiple times, stacking in size and attribute adjustments." },
-    { name: "Swarm", description: "The beast represents a swarm of smaller creatures. It can occupy the same space as other creatures and can move through any opening large enough for one member of the swarm. It cannot regain HP or gain temporary HP." }
+    { name: "Apex Predator", description: "This creature hunts alone, and is intended to be a direct combat threat to an entire team as a solo beast. Double the creature's base HP, but it may not benefit from any other effect that increases its HP. Selecting this ability increases the creature's CR by an additional +1." },
+    { name: "Beast of Burden", description: "The beast doubles its strength for determining how much it can push, pull, lift, or carry." },
+    { name: "Larger", description: "The beast is one size larger than normal. Its natural attacks deal damage as if the creature were a CR 2 higher than the starting CR, and it gains +2 Strength. It suffers a -2 to Dexterity, and its AC is lowered by 1. This ability may be chosen multiple times, and its effects stack." },
+    { name: "Swarm", description: "The creature represents a group of smaller creatures, such as a swarm of spiders or a school of fish. The swarm can occupy another creature's space and vice versa, and the swarm can move through any opening large enough for a single member of its swarm. The swarm can't regain hit points or gain temporary hit points. The creature's size is increased one step (do not adjust its attributes)." }
   ],
   "Enhancements": [
-    { name: "Improved Ability", description: "Choose one beast ability that forces a saving throw. The save DC increases by +2. This ability may be taken multiple times, stacking with different abilities." },
-    { name: "Improved Attribute", needsSelection: "attribute", description: "Increase one attribute of the beast by +2. This ability may be taken multiple times, stacking." },
-    { name: "Mimicry", description: "The beast can mimic simple sounds it has heard, such as voices, cries, or noises. A listener can recognize them as imitations with a DC 10 Insight check." },
-    { name: "Proficient", description: "The beast's proficiency bonus increases by +1, up to the maximum allowed by its final CR. This ability may be taken multiple times." },
-    { name: "Skilled", needsSelection: "combatSkill", description: "The beast gains proficiency in one combat-related or physical skill (such as Athletics, Perception, Stealth, or Survival). This ability may be taken multiple times with different skills." },
-    { name: "Feat", description: "The beast gains one feat of your choice (from the feat list). GM discretion may limit which feats are appropriate." }
+    { name: "Feat", description: "The beast gains a feat from Chapter 7. Note that many feats will not be appropriate for specific creatures, so GM discretion is advised." },
+    { name: "Improved Ability", description: "Choose one other ability that causes a saving throw. The DC of the saving throw increases by +2. This ability may be chosen multiple times and its effects stack." },
+    { name: "Improved Attribute", needsSelection: "attribute", description: "Choose one attribute to gain a +2 bonus. This ability may be chosen multiple times, and its effects stack." },
+    { name: "Mimicry", description: "The beast can mimic simple sounds it has heard, such as a person whispering, a baby crying, or an animal chittering. A creature that hears the sounds can tell they are imitations with a successful DC 10 Insight check." },
+    { name: "Proficient", description: "Increase the creature's Proficiency bonus by +1. This ability may be taken multiple times, but it may not improve the beast's Proficiency bonus above the listed bonus of the creature's final CR." },
+    { name: "Skilled", needsSelection: "combatSkill", description: "The creature is proficient in one of the following skills: Acrobatics, Athletics, Intimidation, Perception, Stealth, or Survival. This ability may be taken multiple times." }
   ]
 };
 
 
-            
-            const featsByCategory = {
-"General": [
-    { name: "Ability Score Increase", cost: 7, needsSelection: "attribute", description: "Increase one ability score by +1 (to a maximum of 20)." },
-    { name: "Advanced Training: Diplomat", cost: 9, requirements: "Charisma 13+, Persuasion", description: "Gain the Diplomat's Inspire ability." },
-    { name: "Advanced Training: Engineer", cost: 9, requirements: "Intelligence 13+, Engineering", description: "Gain the Engineer's Jury Rig ability." },
-    { name: "Advanced Training: Medic", cost: 9, requirements: "Wisdom 13+, Medicine", description: "Gain the Medic's First Aid ability." },
-    { name: "Advanced Training: Scientist", cost: 9, requirements: "Intelligence 13+, Science", description: "Gain the Scientist's Eureka ability." },
-    { name: "Advanced Training: Scout", cost: 9, requirements: "Constitution 13+, Survival", description: "Gain the Scout's Survivalist ability." },
-    { name: "Advanced Training: Soldier", cost: 9, requirements: "Constitution 13+, Intimidation", description: "Gain the Soldier's Tactical Flexibility ability." },
-    { name: "Airborne School", cost: 3, requirements: "Athletics", description: "Gain resistance to falling damage and advantage on parachute checks below 1km altitude." }
+
+const featsByCategory = {
+  "General": [
+    { name: "Ability Score Increase", cost: 7, needsSelection: "attribute", description: "An ability score of your choice is increased by +1. No ability score can be raised above 20 in this way." },
+    { name: "Advanced Training: Diplomat", cost: 9, requirements: "Charisma 13+, Persuasion", description: "You gain the Diplomat's Inspire ability (see page 45)." },
+    { name: "Advanced Training: Engineer", cost: 9, requirements: "Intelligence 13+, Engineering", description: "You gain the Engineer's Jury Rig ability (see page 47)." },
+    { name: "Advanced Training: Medic", cost: 9, requirements: "Wisdom 13+, Medicine", description: "You gain the Medic's First Aid ability (see page 49)." },
+    { name: "Advanced Training: Scientist", cost: 9, requirements: "Intelligence 13+, Science", description: "You gain the Scientist's Eureka ability (see page 51)." },
+    { name: "Advanced Training: Scout", cost: 9, requirements: "Constitution 13+, Survival", description: "You gain the Scout's Survivalist ability (see page 53)." },
+    { name: "Advanced Training: Soldier", cost: 9, requirements: "Constitution 13+, Intimidation", description: "You gain the Soldier's Tactical Flexibility ability (see page 55)." },
+    { name: "Airborne School", cost: 3, requirements: "Athletics", description: "You gain resistance to falling damage. In addition, you gain advantage on any check to open a parachute at altitudes below 1km." },
+    { name: "Apt Analogy", cost: 5, requirements: "Science", description: "You can employ an easy to understand analogy to help others work through complex or esoteric problems. Once per short rest you may grant a friendly character a +TD bonus on an Intelligence or Wisdom skill check." },
+    { name: "Battlefield Medicine", cost: 6, requirements: "Med Kit proficiency", description: "When you use a Med Kit to heal a target during a rest, they also heal 1 point of Strength, Dexterity, or Constitution damage in addition to the HP damage healed. A character may not benefit from this ability again until after a long rest." },
+    { name: "Casual Genius", cost: 6, requirements: "Eureka ability", description: "You begin each mission with a number of Eureka points equal to half your Proficiency Bonus (rounding down)." },
+    { name: "Chaplain School", cost: 3, requirements: "Insight", description: "During a Convince encounter, you do not automatically fail on a roll of 1, and you do not increase the threshold." },
+    { name: "Convincing", cost: 9, requirements: "Inspire ability", description: "You add your Charisma modifier to the temporary hit points granted by Inspire." },
+    { name: "Cross-Discipline Study", cost: 9, requirements: "Intelligence 13+", description: "You add half your Proficiency bonus, rounded down, to any Intelligence, Wisdom, or Charisma skill check that doesn't already include your Proficiency bonus." },
+    { name: "De-escalate", cost: 5, requirements: "Persuasion", description: "Once per long rest you may spend a DP to reduce the tension die by 1 step (d12 to d10, d10 to d8, etc). for the duration of a single encounter or scene (GM determines when a scene changes). After the encounter or scene the tension die returns to its previous value. Multiple characters can de-escalate the same encounter or scene, but the die may not be reduced below 1d4." },
+    { name: "Determined", cost: 9, requirements: "Wisdom 13+", description: "When you roll a 5 or less on a d20 roll and before learning the result, you may choose to spend a Determination Point to re-roll the d20. You must use the new roll. You can only benefit from this once per long rest." },
+    { name: "Dive School", cost: 3, requirements: "Athletics", description: "You can hold your breath for twice as long as normal (see page 130) and you gain a swim speed of 3m. This speed increases to 6m when you are equipped with swimming and diving equipment (such as a Scuba)." },
+    { name: "Escalate", cost: 5, requirements: "Intimidation", description: "Once per long rest you may spend a DP to increase the tension die by 1 step (d4 to d6, d6 to d8, etc). for the duration of a single encounter or scene (GM determines when a scene changes). After the encounter or scene the tension die returns to its previous value. Multiple characters can escalate the same encounter or scene, but the die may not be increased above d12." },
+    { name: "Exceptional Expertise", cost: 9, needsSelection: "skill", requirements: "Proficiency with chosen skill", description: "Choose a skill in which you are proficient. Your Proficiency bonus is doubled for any ability check you make that uses the chosen proficiency. You may select this ability multiple times, applying its effect to a different skill each time." },
+    { name: "Fighter Ace", cost: 5, requirements: "Pilot", description: "When aerial combat begins (see page 160), you add an additional d6 to your position pool. You may purchase this ability up to three times and its effects stack." },
+    { name: "First Response", cost: 9, requirements: "First Aid ability", description: "You may add your Wisdom modifier to the damage you heal with a Med Kit. In addition, you may use a Med Kit to heal a scuffed team member as an action (rather than during a short rest)." },
+    { name: "Force of Will", cost: 5, requirements: "Inspire ability", description: "You may use Inspire when you take a short or long rest. Characters already benefiting from your Inspire are immune to a second application." },
+    { name: "For Science!", cost: 5, requirements: "Eureka ability, Science", description: "You may spend a Eureka point to gain advantage on Charisma checks in addition to Intelligence and Wisdom checks." },
+    { name: "Good Cop / Bad Cop", cost: 5, requirements: "Investigation", description: "At the beginning of an Interrogation encounter you may choose to increase (good cop) or decrease (bad cop) the target's threshold by a roll of the TD. Two characters can use this ability on the same target, but one must increase the threshold and the other decrease the threshold. If they do so, the DC to resist breaking is increased to 20. More than two characters cannot good cop / bad cop the same target." },
+    { name: "Great Mind", cost: 9, requirements: "Intelligence 13+, Wisdom 13+", description: "You are immune to the Charmed condition, and you gain advantage on any Insight checks to discern lies." },
+    { name: "Hardy", cost: 5, description: "Your base HD improves by one step, from d8 to d10, or from d10 to d12. You may select this feat multiple times, each time increasing your HD an additional step, to a maximum of d12. If you already have a HD of d12 you may not purchase this feat. Note: This will immediately increase your HP, as the HP already gained from previous levels will increase by 1 per level when the hit die increases a step." },
+    { name: "Heavy Armor Proficiency", cost: 3, requirements: "Light Armor Proficiency", description: "Gain proficiency in heavy armor." },
+    { name: "Improved Initiative", cost: 6, description: "You may add your Proficiency bonus to Initiative checks." },
+    { name: "Improved Moxie", cost: 6, description: "You may add your Proficiency bonus to Moxie checks." },
+    { name: "Jag School", cost: 5, requirements: "Persuasion", description: "During a Convince encounter, you score a critical success on a roll of 19 or 20." },
+    { name: "Jumpmaster", cost: 3, requirements: "Airborne School", description: "You can spend a DP and one hour to extend the benefits of Airborne School to a number of additional characters equal to your Proficiency bonus until your next long rest." },
+    { name: "Light Armor Proficiency", cost: 3, description: "Gain proficiency in light armor." },
+    { name: "Linguist", cost: 5, requirements: "Charisma 13+, Culture", description: "You can decipher the basics of an unknown language with a DC 20 Culture check and one week with a friendly speaker of the language. A translator provides advantage on this check and reduces the time to one day." },
+    { name: "Man Down", cost: 5, requirements: "First Aid ability", description: "While you are conscious and within 1m of a dying team member, they require one fewer death saves to stabilize." },
+    { name: "Martial Arts Proficiency", cost: 5, description: "You gain proficiency in a martial art and may make Martial Arts attacks (see page 64), which deals 1d6 + Strength modifier damage (instead of unarmed damage)." },
+    { name: "Night Owl", cost: 3, description: "You've learned to stay alert for long periods of time, seeing past your own exhaustion. When you go without rest you may make an Intelligence or Wisdom save in place of a Constitution save to resist exhaustion. In addition, you gain advantage on the first of these saves between long rests." },
+    { name: "Pathfinder", cost: 3, requirements: "Survival", description: "When your team becomes lost during a Traversal encounter, your team returns one fewer cards to the Journey deck (minimum 1). Multiple characters can reduce the number of cards returned in this way (but the minimum remains 1)." },
+    { name: "Pep Talk", cost: 5, requirements: "Charisma 13+", description: "You can give a stirring speech to your team. As an action once per mission, you can restore 1d4 Determination points to each member of your team (including yourself)." },
+    { name: "Physician Heal Thyself", cost: 5, requirements: "First Aid ability", description: "You may use a Med Kit on yourself as a bonus action." },
+    { name: "Pre-Planned Obsolescence", cost: 5, requirements: "Engineering", description: "You may rig a machine to explode as an action. Choose a single mechanical device that could be conceivably rigged to explode (GM discretion). When anyone activates the machine, it explodes, forcing every character within 3m to suffer 6d6 damage (Dexterity save for half damage, DC 8 + Intelligence modifier + Proficiency bonus). A DC 20 Perception check is required to notice this trap." },
+    { name: "Rapid Recuperation", cost: 5, requirements: "Constitution 13+", description: "When you take a long rest, you heal 1d4 levels of exhaustion instead of 1." },
+    { name: "Resilient Mind", cost: 5, requirements: "Intelligence 13+", description: "When you suffer Intelligence, Wisdom, or Charisma damage, reduce the amount of damage suffered by 1 point (minimum 1)." },
+    { name: "Resonant Words", cost: 5, requirements: "Level 5, Word In An Ear ability", description: "When you inspire a friendly character using Word In An Ear, you roll an additional Inspire die to determine how many Inspire HP the character gains. This feat may be purchased a second time at level 11 and a third time at level 17, adding an additional Inspire die each time." },
+    { name: "Rumormonger", cost: 3, requirements: "Intimidation", description: "When you take a Thwart action during a Diplomatic Function encounter you may choose two diplomatic actions to impede instead of one." },
+    { name: "Skill Proficiency", cost: 3, needsSelection: "skill", description: "Gain proficiency in a skill of your choice. You may select this ability up to three times, and each time its MP cost increases by 3MP." },
+    { name: "Strong Personality", cost: 6, requirements: "Inspire ability", description: "Your Inspire die increases one die size (1d6 to 1d8, 1d8 to 1d10, 1d10 to 1d12). You may select this ability multiple times, to a maximum die size of 1d12. You may select this ability multiple times, its effects stack (up to 1d12)." },
+    { name: "Team Player", cost: 3, requirements: "Improved Initiative or Improved Moxie", description: "When you roll Initiative or Moxie, you may exchange your result with a team member who has a lower value than you, if they wish." },
+    { name: "Tool Proficiency", cost: 3, needsSelection: "tool", description: "Gain proficiency in a tool of your choice. You may select this ability multiple times, choosing a different tool each time." },
+    { name: "Tranquilizer Concoction", cost: 5, requirements: "First Aid ability", description: "You have brewed your own personal tranquilizer cocktail that is more effective than the typical sedative. Increase the Constitution save DC of your tranquilizer weapons or sedatives by your Proficiency bonus." },
+    { name: "Trap Rigging", cost: 5, requirements: "Survivalist ability", description: "You can use excess equipment to booby trap a 1m area as an action. You can scavenge parts for a number of traps equal to your Proficiency bonus, refilling these parts during any long rest. When a character enters the designated 1m area it will trigger the trap, but characters may make a Perception check (DC 8 + your Proficiency bonus + your Wisdom modifier) to notice the trap before entering the area. You may set one of three traps: Hidden Spikes: The target must succeed at a DC 20 Dexterity save or suffer 2d6 damage. Snare: The target must succeed at a DC 20 Dexterity save or become entangled. It requires an action and a successful DC 20 Strength, Dexterity, or Wisdom check to remove this condition. Grenade: You may attach your trap to a grenade in your possession, which is detonated when the trap is activated." },
+    { name: "Triage", cost: 9, requirements: "First Aid ability", description: "You can observe a character's current physical condition as a bonus action with a DC 20 Medicine check. If successful, you learn the character's current and total HP as well as their total hit dice. You suffer disadvantage against a target if you are unfamiliar with its biology." },
+    { name: "Tune-Up", cost: 5, requirements: "Engineering", description: "You add your Intelligence modifier to the amount repaired whenever you repair a machine or grant a machine temporary HP." },
+    { name: "Unnoticed Field Medic", cost: 9, requirements: "First Aid ability", description: "When you heal a team member using first aid, attacks against you suffer disadvantage until your next turn." },
+    { name: "Unusual Approach", cost: 7, description: "You have an unusual approach to a skill. Choose Intelligence, Wisdom, or Charisma and an Intelligence, Wisdom, or Charisma skill in which you are proficient. You may use the chosen attribute when making skill checks with the chosen skill instead of the usual attribute." },
+    { name: "Unwavering", cost: 3, description: "You increase your base Determination Points by +1. This feat may be purchased a number of times equal to your Proficiency bonus." },
+    { name: "Veil of Distractions", cost: 5, requirements: "Stealth", description: "You're an expert at making the few tracks you leave easily explainable. Once per Infiltration encounter, when the Alertness track increases, you may reduce the current tension level by one step." },
+    { name: "Weapon Proficiency", cost: 3, needsSelection: "weapon", description: "Choose one type of weapon (Common, Sidearm, Gunnery, etc). and gain proficiency in that weapon. You may select this ability multiple times, choosing a different weapon type each time. This feat cannot be used to choose Martial Arts proficiency." },
+    { name: "Whack-It", cost: 9, requirements: "Engineering", description: "You've learned the time-honored technique of a well-placed thump. As a bonus action you can give one adjacent machine +1d6 temporary hit points. If this brings the machine's HP to above half its normal HP it begins to function immediately. You may only maintain these temporary HP on one machine at a time." },
+    { name: "Wingman", cost: 3, requirements: "Deception", description: "When you take an Ingratiate action during a Diplomatic Function encounter you may choose another character to also gain a Determination point. In addition, that character gains advantage on their action if they have not yet attempted it this round." },
+    { name: "Word in an Ear", cost: 9, requirements: "Inspire ability", description: "You can inspire a single team member within 1m as an action. Roll your Inspire HP die and grant the target Inspire HP as normal. Characters who currently have Inspire HP are immune to this ability. A character may only be targeted by your Word In An Ear once per long rest (although other characters may still inspire them)." }
   ],
-                'Combat - General': [
-                    { name: 'Attack Specialist', cost: 4, requirements: 'Level 5', description: 'Double damage dice with weapon' },
-                    { name: 'Attack Veteran', cost: 4, requirements: 'Level 11, Attack Specialist', description: 'Triple damage dice with weapon' },
-                    { name: 'Critical Focus', cost: 5, requirements: 'Proficient with weapon', description: 'Add prof bonus to crit damage' },
-                    { name: 'Critical Effect', cost: 9, needsSelection: 'condition', requirements: 'Critical Focus', description: 'Apply condition on critical' }
-                ],
-                'Combat - Melee': [
-                    { name: 'Blind-Fighter', cost: 3, requirements: 'Perception', description: 'No disadvantage on blind melee' },
-                    { name: 'Brawler', cost: 7, requirements: 'Attack Specialist', description: 'Chain melee attacks' },
-                    { name: 'Defensive Art Master', cost: 5, requirements: 'Dodge, Martial Arts', description: 'Resistance vs unarmed' }
-                ],
-                'Combat - Ranged': [
-                    { name: 'Ballistics Expert', cost: 7, requirements: 'Science', description: 'Use Int for ranged attacks' },
-                    { name: 'Deadly Shot', cost: 7, requirements: 'Perception', description: 'Disadvantage for +TD damage' },
-                    { name: 'Uncanny Shot', cost: 5, requirements: 'Sniper Techniques', description: 'Double long range with Sniper Techniques' }
-                ],
-                'Inspiration': [
-                    { name: 'Calm and Collected', cost: 5, description: 'Inspired gain save advantage' },
-                    { name: 'Skillful Explanations', cost: 5, description: 'Allow skill reroll' }
-                ],
-                'Modification': [
-                    { name: 'Armorer', cost: 5, description: 'Grant armor +1 AC' },
-                    { name: 'Montage', cost: 5, description: 'Reduce R&D successes needed' }
-                ],
-                'Procedure': [
-                    { name: 'Biohazard Disposal', cost: 5, description: 'Team proficient vs disease' },
-                    { name: 'Vital Organ Trauma', cost: 5, description: 'Add Wis to crit damage' }
-                ],
-                'Discovery': [
-                    { name: 'A Moments Thought', cost: 5, description: 'Reroll failed Int/Wis check' },
-                    { name: 'Social Sciences', cost: 5, requirements: 'Culture', description: 'Gain Eureka when losing DP' }
-                ],
-                'Field Hack': [
-                    { name: 'Camouflage', cost: 5, requirements: 'Stealth', description: 'Team Stealth advantage' },
-                    { name: 'Xenosurvival', cost: 5, requirements: 'Constitution 13+', description: 'Share Survivalist benefits' }
-                ],
-                'Tactic': [
-                    { name: 'Ambush', cost: 5, description: 'Team advantage on first melee' },
-                    { name: 'Rush', cost: 5, description: 'Ally can Dash' }
-                ],
-                'Downtime': [
-                    { name: 'Armory Hound', cost: 3, description: 'Weapons start at higher Tech Level' },
-                    { name: 'Virtuoso', cost: 3, description: 'Musical performance abilities' }
-                ]
-            };
+  "Combat - General": [
+    { name: "Attack Specialist", cost: 4, requirements: "Level 5", description: "Choose one weapon proficiency with which you are proficient. When making attacks with that proficiency you roll twice as many weapon damage dice as normal. Bonus dice from other sources (such as Power Attack or Vanguard) and static modifiers (such as from Strength and Dexterity), are not doubled. You may purchase this feat multiple times, applying it to a different weapon proficiency each time." },
+    { name: "Attack Veteran", cost: 4, requirements: "Level 11, Attack Specialist with chosen Weapon Proficiency", description: "Choose one weapon proficiency with which you have selected with the Attack Specialist feat. When making attacks with that proficiency you roll triple as many weapon damage dice for damage instead of double. You may purchase this feat multiple times, applying it to a different weapon proficiency each time." },
+    { name: "Attack Ace", cost: 4, requirements: "Level 17, Attack Veteran with chosen Weapon Proficiency", description: "Choose one weapon proficiency with which you have selected with the Attack Veteran feat. When making attacks with that proficiency you roll quadruple as many weapon damage dice for damage instead of triple. You may purchase this feat multiple times, applying it to a different weapon proficiency each time." },
+    { name: "Co-ordinated Attack", cost: 7, description: "When you make an attack against a target who is within 1m of one or more of your allies, you deal +TD damage." },
+    { name: "Critical Focus", cost: 5, requirements: "Proficient with the chosen weapon", description: "Choose a weapon proficiency. When you score a critical hit with that type of weapon, add your Proficiency bonus to the damage dealt." },
+    { name: "Critical Effect", cost: 9, needsSelection: "condition", requirements: "Critical Focus", description: "Choose Blinded, Deafened, or Stunned. When you deal additional damage with the Critical Focus feat you apply the chosen effect to the target for a number of rounds equal to your Proficiency bonus." },
+    { name: "Die Hard", cost: 3, requirements: "Constitution 13+", description: "You require 1 fewer successful saves to avoid dying (see page 122). If you reduce the number of required saves to 0 you automatically stabilize. You may take this feat up to 3 times, increasing its cost each time as noted above." },
+    { name: "Dodge", cost: 5, requirements: "Dexterity 13", description: "You add +1 to your AC when wearing light or no armor." },
+    { name: "Evasion", cost: 9, requirements: "Dexterity 13+", description: "You can nimbly dodge out of the way of certain area effects. When you are subjected to an effect that allows a Dexterity saving throw to take only half damage, you instead take no damage if you succeed and only half damage if you fail." },
+    { name: "Hold Together", cost: 9, requirements: "Engineering", description: "When you benefit from cover, you gain resistance to the damage of attacks hindered by that cover." },
+    { name: "Horse Lord", cost: 3, requirements: "Animal Handling", description: "You may mount a living creature by spending 1m of movement rather than half your movement. In addition, you may treat an untrained mount as trained for an encounter by taking an action and succeeding at an Animal Handling check contested by a Wisdom save from the beast." },
+    { name: "Improved Critical", cost: 9, requirements: "Proficiency with three weapon types other than common", description: "Choose a weapon type you are proficient with (such as Longarm, Sidearm, or Common). When using this weapon type you score a critical hit on a 19 or 20 on the die." },
+    { name: "Kip Up", cost: 3, requirements: "Acrobatics or Athletics", description: "You may stand from prone by spending 1m of movement instead of half your movement." },
+    { name: "Look Alive", cost: 9, requirements: "Wisdom 13+", description: "If you succeed at a Surprise check (see page 148), you are not surprised and may choose one team member to not be surprised." },
+    { name: "Organ Targeting", cost: 9, requirements: "Medicine", description: "You deal an additional 1d6 damage on attacks that have advantage or against a wounded target." },
+    { name: "Quick Draw", cost: 3, requirements: "Dexterity or Wisdom 13+", description: "You may draw or holster weapons as a bonus action or a reaction. In addition, when Initiative is rolled, you may draw a weapon." },
+    { name: "Rally", cost: 5, requirements: "Athletics", description: "If you are wounded when Initiative is rolled (at the start of an Action encounter), you may immediately heal TD Hit Points. Once used, you may not activate this ability again until you take a long rest. You may purchase this feat multiple times, increasing the amount healed by +1 TD each time." },
+    { name: "Reactive", cost: 9, requirements: "Dexterity or Wisdom 13+", description: "You may take a second reaction each turn." },
+    { name: "Reinforce Cover", cost: 5, requirements: "Hold Together", description: "As an action you may extend the benefit of your Hold Together ability to all friendly characters within 1m." },
+    { name: "Saddle Warrior", cost: 3, description: "When mounted on a personal transport (such as a horse or motorcycle) you gain advantage on melee attack rolls if you moved at least 3m before the attack." },
+    { name: "Scout's Cunning", cost: 9, requirements: "Dexterity 13+, Athletics", description: "Your quick thinking and agility allows you to act efficiently. You can take a bonus action on each of your turns in combat. This action can be used only to take the Dash, Disengage, or Hide action." },
+    { name: "Spook", cost: 5, requirements: "Intimidate", description: "You're able to keep a target's attention where you want it, even when they're on to you. You may spend a Determination point to take a Taunt action against a target who has resisted your taunt during the encounter." },
+    { name: "Surge", cost: 9, requirements: "Constitution 13+", description: "You can take an additional action on your turn (even an attack) as a bonus action. You must complete a short or long rest before you can use this ability again." },
+    { name: "Swift", cost: 3, requirements: "Athletics or Acrobatics", description: "You add +1m to your movement speed. You may take this feat up to 3 times, increasing its cost each time as noted above." },
+    { name: "Tactical Superiority", cost: 5, requirements: "Two tactic feats", description: "You may have two tactics in effect at the same time. If you use tactical flexibility, you must choose which of your currently active tactics is overridden by the new tactic for the duration of the effect." },
+    { name: "Takedown", cost: 7, requirements: "Dexterity 13+", description: "When you roll damage against an extra, you roll two tension dice and take the better result." },
+    { name: "Uncanny Dodge", cost: 5, requirements: "Dexterity 13+", description: "When an attacker that you can see hits you with an attack, you can use your reaction to gain resistance to the damage. This ability does not function against attacks that deal damage in an area or cone (but it does work against line effects)." },
+    { name: "Unyielding", cost: 3, requirements: "Constitution 11+", description: "Whenever you are suffering from levels of exhaustion, you treat your total exhaustion level as 1 lower." },
+    { name: "Weapon Specialization", cost: 4, description: "Choose a type of weapon (such as Common, Sidearm, Longarm, etc).. You gain +1 to hit and damage with the chosen weapon type. You may select this feat multiple times, selecting a different weapon type each time. You may select this feat a second time for the same weapon type at 8th level, a third time at 11th level, a fourth time at 14th level, and a fifth time at 17th level." },
+    { name: "Weapons Akimbo", cost: 9, requirements: "Proficient with chosen weapon", description: "Choose a weapon type that can be wielded in one hand (such as Sidearms or Blades). When you make an attack with two of the chosen weapon (one in each hand) you may re-roll 1s on the damage dice. You do not roll to attack twice or deal damage from both weapons (roll only once, but spend capacity from both weapons if necessary). You may purchase this ability multiple times, choosing a different weapon type each time. After the first time you purchase this ability, its cost is reduced to 3MP." }
+  ],
+  "Combat - Melee": [
+    { name: "Blind-Fighter", cost: 3, requirements: "Perception", description: "You do not suffer disadvantage when making melee attacks while unable to see." },
+    { name: "Brawler", cost: 7, requirements: "Attack Specialist with Common weapons or Martial Arts", description: "When you hit with a melee weapon or Martial Arts attack you may choose to not multiply the damage dice using Attack Specialist (or Veteran or Ace). If you do, you may make another Martial Arts attack if you don't move this turn (either before or after the attack). Each time you successfully hit a target, you may make another such attack." },
+    { name: "Defensive Art Master", cost: 5, requirements: "Dodge, Martial Arts Proficiency", description: "You have trained in one or more Martial Arts that focus on defending yourself such as certain forms of Boxing, Kung Fu, or Tai Chi. You gain resistance against damage from unarmed strikes (including Martial Arts attacks) as long as that attack is not a critical hit (in which case you take full damage normally)." },
+    { name: "Lok'nel Master", cost: 5, requirements: "Ma'tok proficiency", description: "When you make a melee attack with a Ma'tok staff, you increase the damage dealt by the weapon to 1d12." },
+    { name: "Lunge", cost: 5, description: "When you make a melee attack you increase your melee range by +1m." },
+    { name: "Maneuvering Arts Master", cost: 5, needsSelection: "maneuver", requirements: "Martial Arts Proficiency", description: "You have trained in one or more Martial Arts that focus on grappling with an opponent or otherwise controlling their position such as certain forms of Aikido, Judo, or MMA. Choose either Disarm, Grapple or Trip/Shove. You gain a +2 bonus on contests during combat to perform or resist the noted action. You may choose this feat up to three times, selecting a different option each time." },
+    { name: "Martial Mastery", cost: 7, requirements: "Proficient in 3 weapon types, except Common weapons", description: "You've become a master at striking where it will hurt most. When making melee attacks with melee weapons or Martial Arts, increase the damage die or dice one step (d4s becomes d6s, d6s becomes d8s, d8s becomes d10s, and d10s become d12s). This feat may be chosen multiple times, but may not increase an attack's die size above 1d12." },
+    { name: "Martial Training", cost: 5, requirements: "Proficient in 3 weapon types, except Common weapons", description: "You've trained to deal maximum damage with whatever melee weapon you wield, even improvised weapons. Your minimum damage die for melee weapons and Martial Arts is 1d8." },
+    { name: "Mastaba Master", cost: 5, requirements: "Martial Arts Proficiency", description: "When you are wielding no weapons or only a staff weapon, your AC versus melee attacks is increased by +2." },
+    { name: "Power Attack", cost: 5, requirements: "Athletics", description: "When you make a single melee attack during your turn with a weapon you are proficient with, you may take disadvantage on the attack roll to add +TD to the damage dealt." },
+    { name: "Precision Maneuvers", cost: 5, requirements: "Martial Arts Proficiency", description: "When you attempt to Disarm or Trip a target, you may use Dexterity instead of Strength when making the Athletics check." },
+    { name: "Precision Strikes", cost: 3, requirements: "Martial Arts Proficiency", description: "Your Martial Arts attacks have the Finesse quality." }
+  ],
+  "Combat - Ranged": [
+    { name: "Ballistics Expert", cost: 7, requirements: "Science", description: "You may use your Intelligence modifier in place of your Dexterity modifier when making attack rolls with ranged weapons. You still add your Dexterity modifier to the damage roll." },
+    { name: "Deadly Shot", cost: 7, requirements: "Perception", description: "When you make an attack with a single ranged weapon (not Akimbo) during your turn, you may take disadvantage on the attack roll to add +TD to the damage dealt." },
+    { name: "Hip Fire", cost: 5, description: "When you make ranged attacks while an enemy is within 1m, you do not suffer disadvantage on the attack." },
+    { name: "Iron Grip", cost: 9, requirements: "Strength 13+", description: "When using a weapon with the automatic upgrade you add +2 to your effective Strength modifier for determining how many +TD are added to damage." },
+    { name: "Precise Shot", cost: 5, description: "When you make ranged attacks, the target does not gain the benefits of cover granted by creatures (but terrain or equipment based cover is unaffected)." },
+    { name: "Rapid Reload", cost: 4, description: "You reload weapons in half the normal actions (rounding up). You reload weapons with a 1 action reload as a bonus action." },
+    { name: "Rapid Shot", cost: 3, description: "You may treat Sidearms and Longarms you wield as if they had the burst quality. You may treat fireams with the burst quality as if they had the automatic quality." },
+    { name: "Sniper Techniques", cost: 5, requirements: "Attack Veteran with Longarms", description: "You've learned a myriad of small skills, such as breathing techniques and motion control. Your longarm attacks deal +TD if you do not move on your turn (either before or after attacking)." },
+    { name: "Sniper Trickshots", cost: 5, requirements: "Sniper Techniques", description: "You're so skilled with a longarm that you can perform certain special maneuvers. You may make a trip or disarm attempt (see page 158) instead of dealing damage, using an attack roll with your longarm in place of your Athletics check during the contest." },
+    { name: "Spraying Fire", cost: 9, requirements: "Longarms Proficiency", description: "When using a weapon with the automatic upgrade, you may choose to not deal +TD damage and instead treat the weapon as having the Scatter quality if you fire at least 10 bullets." },
+    { name: "Steady Arm", cost: 5, requirements: "Strength 13+, Iron Grip", description: "When you use an automatic weapon, you don't suffer disadvantage if you add a number of +TD to damage equal to your Proficiency bonus or less." },
+    { name: "Uncanny Shot", cost: 5, requirements: "Sniper Techniques", description: "When you apply Sniper Techniques to an attack you also double the long range of the attack." },
+    { name: "Vanguard", cost: 5, requirements: "Stealth and Survival", description: "You deal +1d6 additional damage with ranged attacks against any target within 5m. You may purchase this ability a number of times equal to your Proficiency bonus, increasing the bonus damage +1d6 each time." }
+  ],
+  "Inspiration": [
+    { name: "Calm and Collected", cost: 5, requirements: "Inspire ability", description: "During a long rest, choose either Intelligence, Wisdom, or Charisma. Inspired characters gain advantage on the chosen save until your next long rest." },
+    { name: "Clear Focus", cost: 5, requirements: "Inspire ability", description: "During a long rest, choose a skill in which you are proficient. Inspired characters gain advantage on the chosen skill until your next long rest." },
+    { name: "Coordinated Fire", cost: 5, requirements: "Inspire ability", description: "After you hit a target with an attack, you may take a bonus action to grant an inspired character advantage to their next attack roll made before your next turn against the same target." },
+    { name: "Defensive Motivation", cost: 5, requirements: "Inspire ability", description: "Inspired characters gains +1 AC." },
+    { name: "Enduring Inspirations", cost: 5, requirements: "Inspire ability", description: "At the beginning of combat (when Initiative is rolled) each inspired character gains a number of Inspire HP equal to a roll of the tension die. A character cannot have more Inspire HP than the maximum possible result of your Inspire die." },
+    { name: "Grim Resolve", cost: 5, requirements: "Inspire ability", description: "When an inspired character loses their last Inspire HP, they gain resistance to bludgeoning, piercing, and slashing damage until their next turn." },
+    { name: "Hard Day's Night", cost: 5, requirements: "Inspire ability", description: "Inspired characters reduce any exhaustion damage they suffer from environmental effects or exertion by 1 level (minimum 1 level). This does not affect attacks that deal exhaustion (such as tranquilizers)." },
+    { name: "Quippy Comebacks", cost: 5, requirements: "Inspire ability", description: "Once per Diplomatic Function, inspired characters may halve the amount of DP lost (rounding down) as a result of a failed Diplomatic Action check." },
+    { name: "Skillful Explanations", cost: 5, requirements: "Inspire ability", description: "Once per short rest, when an inspired character fails a skill check that you are proficient in, you may allow the character to re-roll the result." }
+  ],
+  "Modification": [
+    { name: "Armorer", cost: 5, requirements: "Jury Rig ability", description: "During a long rest, you may choose one character's armor. It gains +1 AC until your next long rest. You may choose this modification multiple times; each time you do you may apply the bonus to an additional armor." },
+    { name: "Chem Thrower", cost: 5, requirements: "Jury Rig ability", description: "During a long rest you may choose one weapon with the line or cone quality. It gains +5m to its range until your next long rest. You may choose this modification multiple times; each time you do you may apply the bonus to an additional weapon." },
+    { name: "Comms Tech", cost: 5, requirements: "Jury Rig ability", description: "Your team's tactical radio equipment has a range of 20km (instead of 5km). In addition, when you launch a communications balloon, its duration increases to 15d6 hours." },
+    { name: "Grenadier", cost: 5, requirements: "Jury Rig ability", description: "Grenades from your kit deal +1d6 damage when used by you. You may choose this modification multiple times; each time you do your kit's grenades deal an additional +1d6 damage when used by you." },
+    { name: "Longarm Calibrations", cost: 5, requirements: "Jury Rig ability", description: "During a long rest you may choose one character's Longarm. It gains a +1d4 to attack rolls against targets at long range until your next long rest. You may choose this modification multiple times; each time you do you may apply the bonus to an additional weapon." },
+    { name: "Minefield Expert", cost: 5, requirements: "Jury Rig ability, Explosives", description: "You can bury an explosive (such as C4 or a claymore mine) just below the dirt rigged to explode when a character enters the space. This process takes 2 minutes. The explosive affects all targets within a 2m radius. A character must succeed at a DC 20 Perception check to spot the mine before triggering it. Additionally, you gain advantage on all Perception checks to spot buried mines." },
+    { name: "Montage", cost: 5, requirements: "Jury Rig ability", description: "During an episode R&D encounter, reduce the number of successes required by half your Proficiency bonus, to a minimum of 1." },
+    { name: "Percussive Maintenance", cost: 5, requirements: "Jury Rig ability", description: "When a vehicle you are embarked within has the damaged condition, you can take an action to ignore the damaged condition for a number of rounds equal to a roll of the tension die." },
+    { name: "Sidearm Calibrations", cost: 5, requirements: "Jury Rig ability", description: "During a long rest you may choose one character's sidearm. It provides a +1d4 to attack rolls against targets at short range until your next long rest. You may choose this modification multiple times, each time you do you may apply the bonus to an additional weapon." }
+  ],
+  "Procedure": [
+    { name: "Biohazard Disposal", cost: 5, requirements: "First Aid ability", description: "You and your team are considered proficient in Constitution saves against diseases, toxins, and viruses. If a character is already proficient in Constitution saves, they gain no benefit from this procedure." },
+    { name: "Controlled Stimulants", cost: 5, requirements: "First Aid ability", description: "As an action, you may use your Med Kit to heal 1d4 levels of exhaustion. A character may not benefit from this ability again until they have taken a long rest." },
+    { name: "Crash Training", cost: 5, requirements: "First Aid ability", description: "You may use a Med Kit to revive a character who has been dead for a number of rounds up to your Proficiency bonus with a successful DC 25 Medicine check. You may attempt this check once per round." },
+    { name: "Embolism", cost: 5, requirements: "First Aid ability", description: "You may use your Med Kit to make a melee attack that deals 1d3 Constitution damage." },
+    { name: "Improvised Medicine", cost: 5, requirements: "First Aid ability", description: "When you do not have a Med Kit, you may still heal friendly targets as if you had a Med Kit but were not proficient with it." },
+    { name: "Pharmaceuticals", cost: 5, requirements: "First Aid ability", description: "You may use your Med Kit to heal a character of 1d4 Intelligence, Wisdom, or Charisma damage during a short rest. A character may not benefit from this ability again until they have taken a long rest." },
+    { name: "Sedatives", cost: 5, requirements: "First Aid ability", description: "You may administer a sedative to a living target as a melee attack using your Med Kit. If successful, the target must succeed at a Constitution save (DC equal to 10 + Proficiency bonus + Wisdom modifier) or suffer 1d6 levels of fatigue. A target brought to 6 levels of fatigue with this ability is unconscious instead of dead." },
+    { name: "Urgent Care", cost: 5, requirements: "First Aid ability", description: "When you heal with a Med Kit, you may choose to replace all the healing dice rolled with the same number of Tension Dice." },
+    { name: "Vital Organ Trauma", cost: 5, requirements: "First Aid ability", description: "When you critically hit, add your Wisdom modifier to the damage dealt." }
+  ],
+  "Discovery": [
+    { name: "A Moment's Thought", cost: 5, requirements: "Eureka ability", description: "Whenever you take a short or long rest you may spend a Eureka point to re-roll an Intelligence or Wisdom skill check to learn information that you failed since your last rest." },
+    { name: "Archaeologist", cost: 5, requirements: "Eureka ability, Culture", description: "As an action you can spend a Eureka point to automatically locate any secret chambers or otherwise hidden rooms within a structure no larger than 20m square per Proficiency bonus. This does not indicate how the secret area may be accessed, only that one must exist (or doesn't exist) within the area. In addition, you gain advantage on any Perception checks to find hidden elements of architecture such as secret levers, trap triggers, or hidden doors." },
+    { name: "Astronomer", cost: 5, requirements: "Eureka ability, Science", description: "As a bonus action you may reduce the time it takes to activate an astronomical device (including a Stargate) by 1 round per Eureka point spent." },
+    { name: "Biologist", cost: 5, requirements: "Eureka ability, Medicine", description: "As an action you may spend any number of Eureka points to heal yourself or a character within 1m for 1d6 damage per Eureka point spent." },
+    { name: "Chemist", cost: 5, requirements: "Eureka ability, Science", description: "As an action you may use your Research Kit to make a ranged attack against a target within 5m. If the attack hits, you may spend any number of Eureka points to deal 1d6 acid damage per Eureka point spent. You are proficient with this attack and it uses your Intelligence modifier in place of your Dexterity. This damage increases to 1d8 per Eureka at level 5, 1d10 at level 11, and 1d12 at level 17." },
+    { name: "Geologist", cost: 5, requirements: "Eureka ability, Science", description: "When a friendly character within 5m makes an attack against a target in cover from a natural source (stones, trees, a hill), you may make a reaction and spend a Eureka point to negate the effects of that cover for the duration of the attack." },
+    { name: "Hyper-Focus", cost: 5, requirements: "Eureka ability", description: "You may spend one Eureka point to add the tension die to an Intelligence or Wisdom check. You may declare this use of Eureka after learning the results of the roll." },
+    { name: "Physicist", cost: 5, requirements: "Eureka ability, Science", description: "When you make an attack with a ranged weapon, you may spend a Eureka to increase the weapon's range by half (+50%)." },
+    { name: "Social Sciences", cost: 5, requirements: "Eureka ability, Culture", description: "Whenever you lose any number of wagered Determination Points, you gain one Eureka point." }
+  ],
+  "Field Hack": [
+    { name: "Camouflage", cost: 5, requirements: "Survivalist ability, Stealth", description: "Using elements of the natural environment, you grant your team advantage on Stealth checks after a short or long rest in an environment." },
+    { name: "Camp Security", cost: 5, requirements: "Survivalist ability, Perception", description: "Your adept site preparation provides advantage on any Perception checks to notice approaching creatures while taking a short or long rest." },
+    { name: "Foraging", cost: 5, requirements: "Survivalist ability, Stealth", description: "When in a natural environment you can feed a number of people up to your Proficiency bonus with a single hard (DC 20) Survival check and 1d4 hours of work." },
+    { name: "Hide Tracks", cost: 5, requirements: "Survivalist ability, Stealth", description: "You travel in back of your team, hiding your tracks. Raise the DC to track your party by your Proficiency bonus or to DC 20 (hard difficulty), whichever result yields a higher DC." },
+    { name: "Ranger Tricks", cost: 5, requirements: "Survivalist ability", description: "During a Traversal encounter, if you succeed at a Terrain card's Navigation check, you navigate an additional 1d3 cards from the Journey deck instead of 1." },
+    { name: "Ration Optimization", cost: 5, requirements: "Survivalist ability", description: "By managing your team's rations and preparing meals with clever use of ingredients, you can keep spirits high. Your team members heal 1 DP during a short rest." },
+    { name: "Rope Tricks", cost: 5, requirements: "Survivalist ability, Stealth", description: "Your expert knots and efficient use of rope allow your entire team to benefit from your Climbing Kit." },
+    { name: "Tracking", cost: 5, requirements: "Survivalist ability, Perception", description: "You gain advantage on all Survival checks made to track." },
+    { name: "Xenosurvival", cost: 5, requirements: "Constitution 13+, Survivalist ability", description: "Once you have taken a short or long rest in an environment, choose a number of additional characters up to your Proficiency bonus to benefit from your Survivalist ability while in the environment until your next rest." }
+  ],
+  "Tactic": [
+    { name: "Ambush", cost: 5, requirements: "Tactical Flexibility ability", description: "You and your team members gain advantage on your first melee attack after any short or long rest." },
+    { name: "Assault Coordination", cost: 5, requirements: "Tactical Flexibility ability", description: "When you hit a target with a ranged attack, the next successful ranged attack by one of your team members deals +1d6 damage." },
+    { name: "Coordinated Response", cost: 5, requirements: "Tactical Flexibility ability", description: "When rolling for initiative, your team members may choose (before the rolls are made) to use your initiative result instead of their own." },
+    { name: "Defensive Posture", cost: 5, requirements: "Tactical Flexibility ability", description: "Add +2 AC to other team members within 2m of you." },
+    { name: "Distracting Attacks", cost: 5, requirements: "Tactical Flexibility ability", description: "When you deal damage to a single target with an attack, you may choose one friendly character not within 2m of you. The target of your attack suffers disadvantage on all attacks against the chosen character until the start of your next turn." },
+    { name: "Hit & Run", cost: 5, requirements: "Tactical Flexibility ability", description: "As a bonus action on your turn you may allow a team member to take a Disengage action." },
+    { name: "Overwatchers", cost: 5, requirements: "Tactical Flexibility ability", description: "During a firefight, when you and your team members take the Overwatch action you cover a 90° field instead of a 45° cone. In addition, you may make two Overwatch attacks (against different targets)." },
+    { name: "Response Shot", cost: 5, requirements: "Tactical Flexibility ability", description: "Once per encounter, you may use your reaction to make a ranged attack against an enemy who makes an attack against a team member other than yourself." },
+    { name: "Rush", cost: 5, requirements: "Tactical Flexibility ability", description: "As a bonus action on your turn you may allow a team member to take a Dash action." }
+  ],
+  "Downtime": [
+    { name: "Armory Hound", cost: 7, requirements: "Proficient in Explosives, Longarms, and Sidearms", description: "If you're not found packing powder, you're probably in the racks doing spot ordinance checks. When you spend your downtime in the armory, you may apply the Armory bonus to a team member in addition to yourself. You may purchase this feat multiple times, providing the bonus to an additional team member each time." },
+    { name: "Artist", cost: 3, description: "You've found that creating something aesthetically pleasing helps you cope with the rigors of duty. You can spend your downtime making art and improving the livability (and therefore effectiveness) of your surroundings. Choose one facility and improve its effective Facility bonus by +1 (to a maximum of +5) during this mission." },
+    { name: "Athlete", cost: 3, requirements: "Acrobatics or Athletics", description: "You're always in the gym, pushing yourself to ever greater limits. When you spend time in the gym, you also add its Facility bonus to your melee attack rolls." },
+    { name: "Bookworm", cost: 7, requirements: "Eureka ability", description: "You're not just a frequent user of the technical library, you're in charge of a portion of the archive. When you spend your downtime in the ASH Archive, you begin each mission with additional Eureka points equal to half the Facility bonus (up to your max, minimum 1)." },
+    { name: "Cinefile", cost: 3, requirements: "Culture", description: "You relax by taking in mass media from a variety of worlds, including Earth, studying the art created by people from many societies. When you spend downtime in the Rec Hall you may choose a Wisdom skill instead of a Charisma skill to gain its Facility bonus." },
+    { name: "Cookie", cost: 7, description: "It's not gourmet, but you love cooking, and your efforts are appreciated and ignored in equal measure. When you spend your downtime in the Mess Hall, you may apply the Mess Hall bonus to a team member in addition to yourself. You may purchase this feat multiple times, providing the bonus to an additional team member each time." },
+    { name: "Gamer", cost: 3, description: "Whether it's boardgames, video games, or traditional gambling, you find games of chance and skill both relaxing and a way to keep your mind sharp. When you spend your downtime gaming you may choose to add the Facility bonus of the Mess Hall to your Charisma and Wisdom saves or the Facility bonus of the Rec Hall to your Intelligence and Wisdom saves (chosen each mission)." },
+    { name: "Party Animal", cost: 5, description: "If there's drinking, dancing, and general merry-making to be had, you'll be there with bells on. You're the life of the party and can always be counted on to share a good time. If you spend your downtime partying (which does not require a facility) you may choose to begin a mission with 1 level of exhaustion. If you do, you do not suffer disadvantage on any checks caused by exhaustion during the mission." },
+    { name: "Sawbones", cost: 9, requirements: "First Aid ability", description: "You're often called to the medical bay to assist with triage, emergency surgery, or just plain weird cases. When you spend your downtime in the medical bay, you gain access to one Procedure feat of your choice for the duration of the mission. This choice may be changed each mission." },
+    { name: "Sport Shooter", cost: 7, requirements: "Proficient in Longarms, Shotguns, and Sidearms", description: "Everyone knows that they can usually find you at the firing range testing equipment. When you spend your downtime at the firing range, you may apply the Firing Range bonus to a team member in addition to yourself. You may purchase this feat multiple times, providing the bonus to an additional team member each time." },
+    { name: "Tread Head", cost: 9, requirements: "Jury Rig ability", description: "You're no stranger to engine grease and can usually be found pouring over manuals in the motor pool. When you spend your downtime in the motor pool, you gain access to one Modification feat of your choice for the duration of the mission. This choice may be changed each mission." },
+    { name: "Virtuoso", cost: 7, requirements: "Proficient in at least two of Culture, Performance or Persuasion", description: "Whether it's hosting open mic night or just belting out a few tunes in the evening, your performances are well attended. When you spend your downtime in the Rec Hall, you may apply the Rec Hall bonus to a team member in addition to yourself. You may purchase this feat multiple times, providing the bonus to an additional team member each time." }
+  ]
+};
             
             const skills = [
                 'Acrobatics', 'Athletics', 'Culture', 'Deception', 'Engineering',
